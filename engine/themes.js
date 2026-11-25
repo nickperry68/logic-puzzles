@@ -67,6 +67,9 @@ function LPThemesFactory(root) {
     return P;
   }
 
+  // every item category a story has: bigCats only come into play with five categories (5×5, 5×6), so 4-category puzzles are unchanged
+  const catsOf = t => t.cats.concat(t.bigCats || []);
+
   const anTag = t => (/^(?!uni|use|eu)[aeiou]/i.test(t) ? 'an ' : 'a ') + t;
 
   const sandwich = {
@@ -240,7 +243,7 @@ function LPThemesFactory(root) {
           { name: 'Battenberg', say: 'the Battenberg', tags: [] },
         ] },
       { id: 'occasion', name: 'Occasion',
-        who: i => `ordered for ${an(i.name)}`, neg: i => `didn't order for ${an(i.name)}`,
+        who: i => `was celebrating ${an(i.name)}`, neg: i => `wasn't celebrating ${an(i.name)}`, // not "ordered": the cake has that verb
         subj: i => `the customer celebrating ${an(i.name)}`,
         items: ['Birthday', 'Wedding', 'Retirement', 'Christening', 'Anniversary', 'Graduation', 'Engagement', 'Leaving do'].map(x => ({ name: x, tags: [] })) },
       { id: 'topping', name: 'Topping',
@@ -342,6 +345,13 @@ function LPThemesFactory(root) {
           { name: 'Doughnut', say: 'a doughnut' }, { name: 'Cheese toastie', say: 'a cheese toastie' }, { name: 'Iced latte', say: 'an iced latte' },
           { name: 'Hot chocolate', say: 'a hot chocolate' }]) },
     ],
+    bigCats: [
+      { id: 'arrived', name: 'Got there', noun: 'way of getting there',
+        who: i => `arrived ${i.say}`, neg: i => `didn't arrive ${i.say}`,
+        subj: i => `the runner who arrived ${i.say}`,
+        items: list([{ name: 'Bike', say: 'by bike' }, { name: 'Bus', say: 'by bus' }, { name: 'Car', say: 'by car' }, { name: 'Train', say: 'by train' },
+          { name: 'Taxi', say: 'by taxi' }, { name: 'Motorbike', say: 'by motorbike' }, { name: 'On foot', say: 'on foot' }, { name: 'Scooter', say: 'on a scooter' }]) },
+    ],
   };
 
   const sportsday = {
@@ -367,6 +377,13 @@ function LPThemesFactory(root) {
         subj: i => `the child in ${i.name} house`,
         items: list(['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange']) },
     ],
+    bigCats: [
+      { id: 'lunch', name: 'Packed lunch', noun: 'packed lunch',
+        who: i => `brought ${i.say || lc(i.name)} for lunch`, neg: i => `didn't bring ${i.say || lc(i.name)} for lunch`,
+        subj: i => `the child who brought ${i.say || lc(i.name)}`,
+        items: list(['Cheese sandwiches', 'Ham sandwiches', 'Tuna sandwiches', 'Pasta salad', 'Sausage rolls', 'Chicken wraps',
+          { name: 'Pitta & hummus', say: 'pitta and hummus' }, 'Mini pizzas', { name: 'Scotch eggs', say: 'Scotch eggs' }, { name: 'Cheese & crackers', say: 'cheese and crackers' }]) },
+    ],
   };
 
   const bakeoff = {
@@ -391,6 +408,12 @@ function LPThemesFactory(root) {
         who: i => `went for ${lc(i.name)}`, neg: i => `didn't go for ${lc(i.name)}`,
         subj: i => `the baker who went for ${lc(i.name)}`,
         items: list(['Lemon', 'Raspberry', 'Chocolate', 'Coffee', 'Ginger', 'Orange', 'Cherry', 'Mango', 'Salted caramel', 'Pistachio']) },
+    ],
+    bigCats: [
+      { id: 'decor', name: 'Decoration', noun: 'decoration',
+        who: i => `topped it with ${lc(i.name)}`, neg: i => `didn't top it with ${lc(i.name)}`,
+        subj: i => `the baker who topped it with ${lc(i.name)}`,
+        items: list(['Fresh berries', 'Edible flowers', 'Gold leaf', 'Chocolate curls', 'Spun sugar', 'Toasted nuts', 'Mint leaves', 'Candied peel', 'Meringue kisses', 'Sprinkles']) },
     ],
   };
 
@@ -419,6 +442,13 @@ function LPThemesFactory(root) {
         who: i => `is proudest of the ${lc(i.name)}`, neg: i => `isn't proudest of the ${lc(i.name)}`,
         subj: i => `the gardener proudest of the ${lc(i.name)}`,
         items: list(['Roses', 'Dahlias', 'Sunflowers', 'Sweet peas', 'Lavender', 'Foxgloves', 'Peonies', 'Hollyhocks', 'Lupins', 'Delphiniums']) },
+    ],
+    bigCats: [
+      { id: 'served', name: 'Served', noun: 'refreshment',
+        who: i => `served visitors ${i.say || lc(i.name)}`, neg: i => `didn't serve visitors ${i.say || lc(i.name)}`,
+        subj: i => `the gardener who served ${i.say || lc(i.name)}`,
+        items: list([{ name: 'Tea & scones', say: 'tea and scones' }, 'Lemonade', 'Elderflower cordial', { name: 'Strawberries', say: 'strawberries and cream' },
+          { name: 'Victoria sponge', say: 'Victoria sponge' }, 'Flapjacks', 'Apple juice', 'Shortbread', 'Lemon drizzle', { name: 'Coffee & walnut', say: 'coffee and walnut cake' }]) },
     ],
   };
 
@@ -1508,7 +1538,7 @@ function LPThemesFactory(root) {
   // ---------- grammar ----------
   function attachText(theme, P, r) {
     const n = P.n;
-    const defs = [theme.anchor].concat(P.cats.slice(1).map(c => theme.cats.find(t => t.id === c.id)));
+    const defs = [theme.anchor].concat(P.cats.slice(1).map(c => catsOf(theme).find(t => t.id === c.id)));
     const cat = x => Math.floor(x / n);
     const item = x => P.cats[cat(x)].items[x % n];
     const isPerson = x => !!P.cats[cat(x)].person;
@@ -1606,7 +1636,60 @@ function LPThemesFactory(root) {
     pubquiz, knitting, hotel, airport, market, pottery, camping, picnic, fishing, birdwatch,
     choir, christmas, bonfire, cinema, gardencentre, kites, sandcastle, roast, lordmayor, ferry,
     funrun, fete, museum, craftfair]);
-  for (const t of THEMES) { t.text = (P, r) => attachText(t, P, r); t.pickNames = (order, n, P) => pickNames(order, n, P, t); }
+  // one line per story for the "Pick a story" list: no counts or number ranges (the puzzle's own intro has those)
+  const BLURBS = {
+    sandwich: "Customers come into the Corner Deli at lunchtime.",
+    race: "Drivers race in the final round of the club championship.",
+    street: "Neighbours live side by side on Willow Row.",
+    bakery: "Customers collect cake orders from the village bakery, one each hour.",
+    rocket: "Rockets leave the spaceport, one a day.",
+    petshow: "Owners take their pets into the ring at the village pet show.",
+    parkrun: "Friends run the Saturday parkrun together.",
+    sportsday: "Children from different year groups each win an event at the school sports day.",
+    bakeoff: "Amateur bakers have their showstoppers judged in the bake-off tent.",
+    opengardens: "Neighbours open their gardens to visitors, one each hour.",
+    allotment: "Growers compete for places at the allotment show.",
+    dogwalk: "Dog owners set off on their morning walks, one each hour.",
+    cottages: "Holidaymakers arrive at their seaside cottages, one a day.",
+    station: "Passengers catch trains from the same station, one each hour.",
+    cafe: "Customers have breakfast at different tables in the seafront café.",
+    bookclub: "Book club members each host one meeting this year.",
+    musiclessons: "Pupils have music lessons with the same teacher, one each hour.",
+    talentshow: "Performers take to the stage at the village hall talent show.",
+    carboot: "Sellers set up side by side at the car boot sale, each making one big sale.",
+    wedding: "Guests at a wedding reception sit at different tables.",
+    birthdays: "Children of different ages have their birthday parties this month.",
+    gala: "Swimmers line up in different lanes for the final race of the gala.",
+    bikeride: "Friends do a sponsored bike ride, each over a different distance.",
+    icecream: "People queue at the ice cream van on the seafront.",
+    pizza: "Friends each host a homemade pizza night, one a night.",
+    escape: "Friends captain teams at the escape rooms, and every team gets out in a different time.",
+    pubquiz: "Friends captain teams at the pub quiz, each scoring a different total.",
+    knitting: "Knitting circle members each finish a project, each using a different number of balls of wool.",
+    hotel: "Guests stay at a seaside hotel, each for a different number of nights.",
+    airport: "Passengers fly out of the same airport, each from a different gate.",
+    market: "Stallholders at the farmers' market each sell out at a different time.",
+    pottery: "Students at an evening pottery class each work at a different wheel.",
+    camping: "Friends go camping, each on their own pitch.",
+    picnic: "Relatives arrive at the park for a family picnic.",
+    fishing: "Anglers fish in the canal match, each from a different peg.",
+    birdwatch: "Neighbours each count a different number of birds on the Garden Birdwatch.",
+    choir: "Members of the community choir each sing a solo at the summer concert.",
+    christmas: "Cousins open their presents at different times on Christmas morning.",
+    bonfire: "Friends arrive at the village bonfire and fireworks.",
+    cinema: "Friends go to the multiplex, each to a different screen.",
+    gardencentre: "Shoppers each buy one plant at the garden centre, each spending a different amount.",
+    kites: "Flyers at the kite festival each get their kite to a different height.",
+    sandcastle: "Builders enter the sandcastle contest, each castle with a different number of turrets.",
+    roast: "Friends each cook Sunday lunch, serving at different times.",
+    lordmayor: "Friends ride on different floats in the Lord Mayor's Show.",
+    ferry: "Travellers each take a ferry to a different island.",
+    funrun: "Friends run a 5k fun run in fancy dress and finish in different times.",
+    fete: "Volunteers run stalls at the village fête, each raising a different amount.",
+    museum: "Friends visit the museum on a rainy Saturday, each staying a different length of time.",
+    craftfair: "Makers each have a table at the Christmas craft fair.",
+  };
+  for (const t of THEMES) { t.text = (P, r) => attachText(t, P, r); t.pickNames = (order, n, P) => pickNames(order, n, P, t); t.blurb = BLURBS[t.id]; }
 
   // ---------- Make your own ----------
   // The player's own words go into a scenario (its sentences and numbers stay fixed) or into "Your own topic"
@@ -1628,10 +1711,11 @@ function LPThemesFactory(root) {
   const cell = w => ({ name: Cap(w.replace(/^(a|an|the|some)\s+/i, '')), say: w, tags: [] });
 
   // categories a player can fill in for a scenario (numbers like ages stay out: they'd need to be numbers)
-  function fillable(theme) {
-    return theme.cats.filter(c => !c.person && !c.numeric && frame(c, 'who') && frame(c, 'neg')).map(c => ({
+  function fillable(theme, k) {
+    return (k >= 5 ? catsOf(theme) : theme.cats).filter(c => !c.person && !c.numeric && frame(c, 'who') && frame(c, 'neg')).map(c => ({
       id: c.id, name: c.name, label: c.noun || c.name.toLowerCase(), examples: c.items.map(i => i.name),
       who: frame(c, 'who'),
+      ownWho: w => { const it = c.items.find(i => i.name.toLowerCase() === String(w).toLowerCase()); return it ? c.who(it) : null; }, // "has a pond", not "has pond"
     }));
   }
   function derive(def, words) {
@@ -1682,7 +1766,7 @@ function LPThemesFactory(root) {
       const pc = base.cats.find(c => c.person);
       t = Object.assign({}, base, { id: 'custom', k: spec.cats.length + 2,
         cats: [Object.assign({}, pc, { items: spec.names.map(nm => ({ name: nm, tags: [] })) })]
-          .concat(spec.cats.map((id, i) => derive(base.cats.find(c => c.id === id), spec.words[i]))) });
+          .concat(spec.cats.map((id, i) => derive(catsOf(base).find(c => c.id === id), spec.words[i]))) });
       delete t.pickNames;
     }
     t.custom = spec;

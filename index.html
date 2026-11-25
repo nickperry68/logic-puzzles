@@ -406,7 +406,7 @@
   // a story can be played with k categories if it has enough item categories (5 categories = 3 besides names and numbers)
   // Fiendish only where there's a Fiendish bank; no Easy with five categories (it would need 35+ clues, and won't generate reliably at 5×6)
   const levelOk = (level, size) => level === 'fiendish' ? bankOf('fiendish', size).length > 0 : level === 'easy' ? !/^5x/.test(size) : true;
-  const fitsK = (t, k) => !!t && t.cats.filter(c => !c.person).length >= (k || 4) - 2;
+  const fitsK = (t, k) => !!t && t.cats.concat((k || 4) >= 5 && t.bigCats || []).filter(c => !c.person).length >= (k || 4) - 2;
   if (!SIZES[settings.size]) settings.size = { 3: '3x3', 4: '4x4', 6: '4x6' }[settings.size] || '4x5'; // older saved settings
   const sizeOf = () => SIZES[settings.size];
   const WORD = ['', '', 'two', 'three', 'four', 'five', 'six'];
@@ -979,11 +979,11 @@
     words: [['a lion', 'a zebra', 'an otter', 'a penguin', 'a hedgehog', 'a tiger'], ['rhythm', 'because', 'island', 'weird', 'necessary', 'busy'],
       ['red', 'blue', 'green', 'yellow', 'purple', 'orange']] };
   // scenarios that have enough categories to fill at this size (5-category grids need three)
-  const mkFits = (t, k) => !!t && TH.fillable(t).length >= k - 2;
+  const mkFits = (t, k) => !!t && TH.fillable(t, k).length >= k - 2;
   const mkBase = k => { const t = TH.byId(MK.base); return mkFits(t, k) ? t : TH.THEMES.find(x => mkFits(x, k)); };
   // which of the scenario's categories fill the item slots (the player can swap them when there are more)
   function mkSlots(t, k) {
-    const f = TH.fillable(t), want = k - 2;
+    const f = TH.fillable(t, k), want = k - 2;
     let ids = (MK.cats[t.id] || []).filter(id => f.some(c => c.id === id));
     for (const c of f) if (ids.length < want && !ids.includes(c.id)) ids.push(c.id);
     return { f, ids: ids.slice(0, want) };
@@ -1059,7 +1059,7 @@
       const t = TH.byId(MK.base), { f, ids } = mkSlots(t, k);
       ids.forEach((id, j) => {
         const c = f.find(x => x.id === id), w = first((MK.scen[t.id] || {})[id], c.examples[0].toLowerCase());
-        const el = $('#say' + j); if (el) el.innerHTML = `Reads like: <b>${esc(nm)} ${esc(TH.fillIn(c.who, w))}.</b>`;
+        const el = $('#say' + j); if (el) el.innerHTML = `Reads like: <b>${esc(nm)} ${esc((c.ownWho && c.ownWho(w)) || TH.fillIn(c.who, w))}.</b>`;
       });
     } else {
       const T = MK.topic, ent = T.entity;
@@ -1282,7 +1282,7 @@
     $('#stories').classList.remove('hidden'); window.scrollTo(0, 0);
     $('#storiesSub').textContent = `${k}×${n} · ${LEVEL[settings.difficulty]} · change these on the home screen`;
     const az = TH.THEMES.filter(t => fitsK(t, k)).sort((a, b) => a.title.replace(/^The /, '').localeCompare(b.title.replace(/^The /, '')));
-    $('#storyList').innerHTML = az.map(t => `<button data-id="${t.id}"><b>${esc(t.title)}</b><span>${esc(t.intro(n))}</span></button>`).join('');
+    $('#storyList').innerHTML = az.map(t => `<button data-id="${t.id}"><b>${esc(t.title)}</b><span>${esc(t.blurb || t.intro(n))}</span></button>`).join('');
     $('#storyList').querySelectorAll('button').forEach(b => b.onclick = () => newGame(b.dataset.id, settings.difficulty, k, n));
   }
   $('#storiesBack').onclick = () => renderHome();

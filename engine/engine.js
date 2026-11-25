@@ -359,7 +359,7 @@ function LPEngineFactory(root) {
     const values = theme.anchor.values(n, r);
     const cats = [{ id: theme.anchor.id, name: theme.anchor.name, anchor: true,
       items: values.map(v => ({ name: theme.anchor.fmt(v), value: v, tags: [] })) }];
-    const pool = theme.cats.slice();
+    const pool = (k || theme.k) >= 5 && theme.bigCats ? theme.cats.concat(theme.bigCats) : theme.cats.slice(); // bigCats: five-category grids only
     // names category first if present, then random others
     const person = pool.filter(c => c.person);
     const rest = shuffle(pool.filter(c => !c.person), r);
