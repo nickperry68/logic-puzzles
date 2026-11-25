@@ -1150,6 +1150,12 @@ function LPThemesFactory(root) {
         subj: i => `the stallholder from ${i.name}`,
         items: list(['Kent', 'Sussex', 'Surrey', 'Dorset', 'Devon', 'Somerset', 'Norfolk', 'Suffolk', 'Essex', 'Wiltshire']) },
     ],
+    bigCats: [
+      { id: 'van', name: 'Van', noun: 'van colour',
+        who: i => `drove a ${i.say || lc(i.name)} van`, neg: i => `didn't drive a ${i.say || lc(i.name)} van`,
+        subj: i => `the stallholder with the ${i.say || lc(i.name)} van`,
+        items: list(['White', 'Blue', 'Green', 'Red', 'Silver', 'Black', 'Yellow', 'Grey']) },
+    ],
   };
 
   const pottery = {
@@ -1174,6 +1180,12 @@ function LPThemesFactory(root) {
         who: i => `used ${an(i.name)} glaze`, neg: i => `didn't use ${an(i.name)} glaze`,
         subj: i => `the potter with the ${lc(i.name)} glaze`,
         items: list(['Cobalt blue', 'Speckled cream', 'Sage green', 'Terracotta', 'Turquoise', 'Charcoal grey', 'Burnt orange', 'Pale pink', 'Mustard yellow', 'Lavender']) },
+    ],
+    bigCats: [
+      { id: 'apron', name: 'Apron', noun: 'apron',
+        who: i => `wore a ${i.say || lc(i.name)} apron`, neg: i => `didn't wear a ${i.say || lc(i.name)} apron`,
+        subj: i => `the potter in the ${i.say || lc(i.name)} apron`,
+        items: list(['Striped', 'Spotty', 'Denim', 'Checked', 'Floral', 'Canvas', 'Leather', 'Tartan']) },
     ],
   };
 
@@ -1202,6 +1214,12 @@ function LPThemesFactory(root) {
           { name: 'Guitar', say: 'the guitar' }, { name: 'Football', say: 'the football' }, { name: 'Deckchairs', say: 'the deckchairs' },
           { name: 'Barbecue', say: 'the barbecue' }, { name: 'Playing cards', say: 'the playing cards' }, { name: 'Binoculars', say: 'the binoculars' },
           { name: 'Bunting', say: 'the bunting' }]) },
+    ],
+    bigCats: [
+      { id: 'cooked', name: 'Cooked', noun: 'what they cooked',
+        who: i => `cooked ${i.say || lc(i.name)} on the stove`, neg: i => `didn't cook ${i.say || lc(i.name)} on the stove`,
+        subj: i => `the camper who cooked ${i.say || lc(i.name)}`,
+        items: list(['Sausages', 'Bacon', 'Beans', 'Noodles', 'Pancakes', 'Chilli', 'Eggs', 'Burgers', 'Curry', 'Porridge']) },
     ],
   };
 
@@ -1232,6 +1250,12 @@ function LPThemesFactory(root) {
           { name: 'Croquet', say: 'croquet' }, { name: 'Egg and spoon', say: 'the egg and spoon race' }, { name: 'Sack race', say: 'the sack race' },
           { name: 'Treasure hunt', say: 'the treasure hunt' }]) },
     ],
+    bigCats: [
+      { id: 'seat', name: 'Sat on', noun: 'what they sat on',
+        who: i => `sat on ${i.say || lc(i.name)}`, neg: i => `didn't sit on ${i.say || lc(i.name)}`,
+        subj: i => `the relative who sat on ${i.say || lc(i.name)}`,
+        items: list([{ name: 'Tartan rug', say: 'a tartan rug' }, { name: 'Striped blanket', say: 'a striped blanket' }, { name: 'Deckchair', say: 'a deckchair' }, { name: 'Camping chair', say: 'a camping chair' }, { name: 'Beach towel', say: 'a beach towel' }, { name: 'Cushion', say: 'a cushion' }, { name: 'Folding stool', say: 'a folding stool' }, { name: 'Bench', say: 'a bench' }, { name: 'Hay bale', say: 'a hay bale' }]) },
+    ],
   };
 
   const fishing = {
@@ -1257,6 +1281,12 @@ function LPThemesFactory(root) {
         subj: i => `the angler using ${lc(i.name)}`,
         items: list(['Maggots', 'Sweetcorn', 'Bread', 'Worms', 'Luncheon meat', 'Casters', 'Pellets', 'Hemp seed', 'Cheese paste', 'Prawns']) },
     ],
+    bigCats: [
+      { id: 'hat', name: 'Hat', noun: 'hat',
+        who: i => `wore a ${i.say || lc(i.name)}`, neg: i => `didn't wear a ${i.say || lc(i.name)}`,
+        subj: i => `the angler in the ${i.say || lc(i.name)}`,
+        items: list(['Bucket hat', 'Flat cap', 'Beanie', 'Baseball cap', 'Deerstalker', 'Sun hat', 'Bobble hat', 'Trapper hat']) },
+    ],
   };
 
   const birdwatch = {
@@ -1281,6 +1311,12 @@ function LPThemesFactory(root) {
         who: i => `put out ${lc(i.name)}`, neg: i => `didn't put out ${lc(i.name)}`,
         subj: i => `the neighbour who put out ${lc(i.name)}`,
         items: list(['Sunflower hearts', 'Fat balls', 'Nyjer seed', 'Mealworms', 'Peanuts', 'Chopped apple', 'Suet pellets', 'Mixed seed', 'Grated cheese']) },
+    ],
+    bigCats: [
+      { id: 'from', name: 'Watched from', noun: 'where they watched from',
+        who: i => `watched from the ${i.say || lc(i.name)}`, neg: i => `didn't watch from the ${i.say || lc(i.name)}`,
+        subj: i => `the neighbour who watched from the ${i.say || lc(i.name)}`,
+        items: list(['Kitchen window', 'Back door', 'Conservatory', 'Garden bench', 'Shed', 'Patio', 'Bedroom window', 'Summerhouse', 'Greenhouse']) },
     ],
   };
 
@@ -1312,6 +1348,12 @@ function LPThemesFactory(root) {
         subj: i => `the singer accompanied on the ${lc(i.name)}`,
         items: list(['Piano', 'Harp', 'Guitar', 'Violin', 'Cello', 'Flute', 'Organ', 'Accordion', 'Clarinet', 'Ukulele']) },
     ],
+    bigCats: [
+      { id: 'warmup', name: 'Warmed up with', noun: 'warm-up',
+        who: i => `warmed up with ${i.say || lc(i.name)}`, neg: i => `didn't warm up with ${i.say || lc(i.name)}`,
+        subj: i => `the singer who warmed up with ${i.say || lc(i.name)}`,
+        items: list(['Humming', 'Scales', 'Tongue twisters', 'Lip trills', 'Sirens', 'Arpeggios', 'Breathing exercises', 'Shoulder rolls', 'Stretches', 'Honey and lemon']) },
+    ],
   };
 
   const christmas = {
@@ -1337,6 +1379,12 @@ function LPThemesFactory(root) {
         subj: i => `the cousin who ate ${i.say || lc(i.name)} for breakfast`,
         items: list([{ name: 'Smoked salmon', say: 'smoked salmon' }, { name: 'Bacon sandwich', say: 'a bacon sandwich' }, 'Croissants', 'Chocolate coins', 'Porridge',
           'Pancakes', 'Mince pies', { name: 'Panettone', say: 'panettone' }, { name: 'Boiled egg', say: 'a boiled egg' }, { name: 'Toast and marmalade', say: 'toast and marmalade' }]) },
+    ],
+    bigCats: [
+      { id: 'jumper', name: 'Jumper', noun: 'Christmas jumper',
+        who: i => `wore the ${i.say || lc(i.name)} jumper`, neg: i => `didn't wear the ${i.say || lc(i.name)} jumper`,
+        subj: i => `the cousin in the ${i.say || lc(i.name)} jumper`,
+        items: list(['Reindeer', 'Snowman', 'Penguin', 'Robin', { name: 'Pudding', say: 'Christmas pudding' }, { name: 'Santa', say: 'Santa' }, 'Elf', 'Star', 'Snowflake', { name: 'Tree', say: 'Christmas tree' }]) },
     ],
   };
 
@@ -1365,6 +1413,12 @@ function LPThemesFactory(root) {
         items: list(['Bobble hat', { name: 'Earmuffs', say: 'earmuffs' }, 'Woolly scarf', { name: 'Mittens', say: 'mittens' }, { name: 'Wellies', say: 'wellies' },
           'Puffer jacket', 'Snood', 'Duffle coat', 'Fleece', 'Parka']) },
     ],
+    bigCats: [
+      { id: 'liked', name: 'Liked best', noun: 'favourite part',
+        who: i => `liked the ${i.say || lc(i.name)} best`, neg: i => `didn't like the ${i.say || lc(i.name)} best`,
+        subj: i => `the friend who liked the ${i.say || lc(i.name)} best`,
+        items: list(['Rockets', { name: 'Catherine wheels', say: 'Catherine wheels' }, { name: 'Roman candles', say: 'Roman candles' }, 'Sparklers', 'Fountains', 'Comets', 'Bonfire', { name: 'Guy', say: 'Guy' }]) },
+    ],
   };
 
   const cinema = {
@@ -1392,6 +1446,12 @@ function LPThemesFactory(root) {
           { name: 'Hot dog', say: 'a hot dog' }, { name: 'Pick and mix', say: 'pick and mix' }, { name: 'Choc ice', say: 'a choc ice' },
           { name: 'Slushie', say: 'a slushie' }, { name: 'Toffee popcorn', say: 'toffee popcorn' }, { name: 'Crisps', say: 'a bag of crisps' },
           { name: 'Wine gums', say: 'wine gums' }]) },
+    ],
+    bigCats: [
+      { id: 'travel', name: 'Got there', noun: 'way of getting there',
+        who: i => `got there ${i.say || lc(i.name)}`, neg: i => `didn't get there ${i.say || lc(i.name)}`,
+        subj: i => `the film-goer who got there ${i.say || lc(i.name)}`,
+        items: list([{ name: 'Bus', say: 'by bus' }, { name: 'Bike', say: 'by bike' }, { name: 'Car', say: 'by car' }, { name: 'Taxi', say: 'by taxi' }, { name: 'Train', say: 'by train' }, { name: 'Tram', say: 'by tram' }, { name: 'On foot', say: 'on foot' }, { name: 'Scooter', say: 'on a scooter' }]) },
     ],
   };
 
