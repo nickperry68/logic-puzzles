@@ -78,6 +78,9 @@
   .lab { font-size: calc(12.5px * var(--fs)); color: var(--ink); font-weight: 500; display: flex; align-items: center; overflow: hidden; white-space: nowrap; padding: 0 5px; border-radius: 4px; transition: background .15s; }
   .lab.col { writing-mode: vertical-rl; transform: rotate(180deg); justify-content: flex-start; padding: 5px 0; }
   .lab.row { justify-content: flex-end; }
+  /* row names stay put when a wide grid (4×6 and up on a phone) scrolls sideways */
+  .catname.v { position: sticky; left: 0; z-index: 2; background: var(--paper); }
+  .lab.row { position: sticky; left: 18px; z-index: 2; background-color: var(--paper); border-radius: 0; }
   .lab.hl { background: var(--marker); font-weight: 700; }
   .cell { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); display: grid; place-items: center; font-size: 13px; line-height: 1; cursor: pointer; position: relative; }
   .cell.bl { border-left: 2px solid var(--ink); } .cell.bt { border-top: 2px solid var(--ink); }
@@ -93,6 +96,8 @@
   .cell.line.yes, .cell.line.no { background: var(--line); }
   .cell.here { box-shadow: inset 0 0 0 2px var(--blue); }
   .lab.line { background: var(--line); font-weight: 600; }
+  .lab.row.hl { background: linear-gradient(var(--marker), var(--marker)), var(--paper); }
+  .lab.row.line { background: linear-gradient(var(--line), var(--line)), var(--paper); }
   .cell.target { background: var(--marker); animation: pulse 1s ease-in-out infinite alternate; }
   @keyframes pulse { to { background: rgba(255, 210, 0, .85); } }
 
@@ -212,7 +217,7 @@
   <p class="tag">Grid puzzles that read like a person wrote them, with hints that explain why.</p>
   <button class="continue hidden" id="continueBtn"></button>
   <div class="seg" id="sizeSeg">
-    <button data-s="3x3">3×3</button><button data-s="3x4">3×4</button><button data-s="4x4">4×4</button><button data-s="4x5">4×5</button><button data-s="4x6">4×6</button>
+    <button data-s="3x3">3×3</button><button data-s="3x4">3×4</button><button data-s="4x4">4×4</button><button data-s="4x5">4×5</button><button data-s="4x6">4×6</button><button data-s="5x5" class="big">5×5</button><button data-s="5x6" class="big">5×6</button>
   </div>
   <p class="sizenote" id="sizeNote"></p>
   <div class="seg" id="diffSeg">
@@ -248,7 +253,7 @@
     <div class="title"><h2>Make your own</h2><small style="text-transform:none">Your names and words, in a puzzle that works</small></div>
   </div>
   <div class="seg" id="makeMode"><button data-m="scenario">A scenario</button><button data-m="topic">Your own topic</button></div>
-  <div class="seg" id="makeSize"><button data-s="3x3">3×3</button><button data-s="3x4">3×4</button><button data-s="4x4">4×4</button><button data-s="4x5">4×5</button><button data-s="4x6">4×6</button></div>
+  <div class="seg" id="makeSize"><button data-s="3x3">3×3</button><button data-s="3x4">3×4</button><button data-s="4x4">4×4</button><button data-s="4x5">4×5</button><button data-s="4x6">4×6</button><button data-s="5x5" class="big">5×5</button><button data-s="5x6" class="big">5×6</button></div>
   <div class="seg" id="makeDiff"><button data-d="easy">Easy</button><button data-d="medium">Medium</button><button data-d="hard">Hard</button><button data-d="fiendish">Fiendish</button></div>
   <div id="makeForm"></div>
   <div id="makeMsg"></div>
@@ -391,7 +396,17 @@
   const settings = Object.assign({ autoCross: true, difficulty: 'medium', size: '4x5' }, store.get('lp.settings') || {});
   const saveSettings = () => store.set('lp.settings', settings);
   // size = categories x items
-  const SIZES = { '3x3': [3, 3], '3x4': [3, 4], '4x4': [4, 4], '4x5': [4, 5], '4x6': [4, 6] };
+  const SIZES = { '3x3': [3, 3], '3x4': [3, 4], '4x4': [4, 4], '4x5': [4, 5], '4x6': [4, 6], '5x5': [5, 5], '5x6': [5, 6] };
+  // Big Grids (5 categories): the code copes, but the size buttons stay hidden until the pack's bank and home-screen place are settled
+  const BIG_GRIDS = /[?&]big\b/.test(location.search); // open the app with ?big to try them
+  if (!BIG_GRIDS) {
+    document.querySelectorAll('button.big').forEach(b => b.remove());
+    for (const k of ['size', 'makeSize']) if (/^5x/.test(settings[k] || '')) settings[k] = '4x6';
+  }
+  // a story can be played with k categories if it has enough item categories (5 categories = 3 besides names and numbers)
+  // Fiendish only where there's a Fiendish bank; no Easy with five categories (it would need 35+ clues, and won't generate reliably at 5×6)
+  const levelOk = (level, size) => level === 'fiendish' ? bankOf('fiendish', size).length > 0 : level === 'easy' ? !/^5x/.test(size) : true;
+  const fitsK = (t, k) => !!t && t.cats.filter(c => !c.person).length >= (k || 4) - 2;
   if (!SIZES[settings.size]) settings.size = { 3: '3x3', 4: '4x4', 6: '4x6' }[settings.size] || '4x5'; // older saved settings
   const sizeOf = () => SIZES[settings.size];
   const WORD = ['', '', 'two', 'three', 'four', 'five', 'six'];
@@ -418,18 +433,19 @@
     const [k, n] = sizeOf();
     document.querySelectorAll('#sizeSeg button').forEach(b => b.classList.toggle('on', b.dataset.s === settings.size));
     $('#sizeNote').textContent = `${WORD[k]} categories · ${WORD[n]} items each`.replace(/^./, c => c.toUpperCase());
-    if (settings.difficulty === 'fiendish' && !bankOf('fiendish', settings.size).length) settings.difficulty = 'hard';
+    if (!levelOk(settings.difficulty, settings.size)) settings.difficulty = settings.difficulty === 'easy' ? 'medium' : 'hard';
     document.querySelectorAll('#diffSeg button').forEach(b => {
       b.classList.toggle('on', b.dataset.d === settings.difficulty);
-      if (b.dataset.d === 'fiendish') b.disabled = !bankOf('fiendish', settings.size).length;
+      if (b.dataset.d === 'fiendish' || b.dataset.d === 'easy') b.disabled = !levelOk(b.dataset.d, settings.size);
     });
     if (!bankOf('fiendish', settings.size).length && Object.keys(FIENDISH).length) $('#sizeNote').textContent += ' · no Fiendish at this size';
+    if (!levelOk('easy', settings.size)) $('#sizeNote').textContent += ' · no Easy at this size';
     const box = $('#themes'); box.innerHTML = '';
     const card = (cls, title, text, fn) => { const b = document.createElement('button'); b.className = 'theme ' + cls; b.innerHTML = `<h3>${title}</h3><p>${text}</p>`; b.onclick = fn; box.appendChild(b); };
-    card('surprise big', 'Surprise me', `A new puzzle from any of the ${TH.THEMES.length} stories, at your size and level.`, () => newGame(dealTheme(), settings.difficulty, k, n));
+    card('surprise big', 'Surprise me', `A new puzzle from any of the ${TH.THEMES.filter(t => fitsK(t, k)).length} stories, at your size and level.`, () => newGame(dealTheme(undefined, k), settings.difficulty, k, n));
     card('', 'Pick a story', `Choose from all ${TH.THEMES.length}: the Corner Deli, Bonfire Night, the Pub Quiz…`, () => renderStories());
     card('make', 'Make your own', 'Put in your own names and words (a class, a family, this week\'s spellings) and get a puzzle to play, print or send.', () => renderMake());
-    const ahead = [peekTheme()[0]]; // whatever Surprise me deals next
+    const ahead = peekTheme(k).slice(0, 1); // whatever Surprise me deals next
     Gen.keepOnly(ahead.map(id => Gen.keyOf(id, settings.difficulty, k, n)));
     if (!fromBank(settings.difficulty, k, n)) for (const id of ahead) Gen.prefetch(id, settings.difficulty, k, n);
     const saved = store.get('lp.game');
@@ -471,7 +487,7 @@
     return { id: size + '#' + id, sk: byId.get(id) };
   }
   // General pack: every scenario once, in a shuffled order, before any repeats (avoid = don't deal this one next)
-  function peekTheme() {
+  function peekTheme(k) {
     const ids = TH.THEMES.map(t => t.id);
     const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
     let deck = (store.get('lp.themeDeck') || []).filter(id => ids.includes(id));
@@ -482,11 +498,14 @@
     else if (fresh.length) deck = shuffle(fresh).concat(deck);
     store.set('lp.themeKnown', ids);
     store.set('lp.themeDeck', deck);
-    return deck;
+    return k > 4 ? deck.filter(id => fitsK(TH.byId(id), k)) : deck;
   }
-  function dealTheme(avoid) {
+  function dealTheme(avoid, k) {
     const deck = peekTheme();
-    let i = deck[0] === avoid && deck.length > 1 ? 1 : 0;
+    // big grids: only the stories with enough categories (the others wait their turn in the deck)
+    const ok = deck.map((id, i) => i).filter(i => fitsK(TH.byId(deck[i]), k));
+    if (!ok.length) { const all = TH.THEMES.filter(t => fitsK(t, k) && t.id !== avoid); return all[Math.floor(Math.random() * all.length)].id; }
+    const i = deck[ok[0]] === avoid && ok.length > 1 ? ok[1] : ok[0];
     const id = deck.splice(i, 1)[0]; store.set('lp.themeDeck', deck);
     return id;
   }
@@ -638,7 +657,7 @@
       dealNames(P, themeId);
       start(P, { theme: themeId, difficulty, seed: P.seed, k, n, marks: [], elapsed: 0, done: [], hints: 0 });
       Gen.keepOnly([]);
-      if (!fromBank(difficulty, k, n)) Gen.prefetch(peekTheme().find(id => id !== themeId) || themeId, difficulty, k, n); // ready for "Next puzzle"
+      if (!fromBank(difficulty, k, n)) Gen.prefetch(peekTheme(k).find(id => id !== themeId) || themeId, difficulty, k, n); // ready for "Next puzzle"
     });
   }
   function resume(saved) {
@@ -866,7 +885,7 @@
       }
       if (G.custom) return makeCustom(G.custom, G.difficulty, G.k, G.n); // same words, a new puzzle
       // same size and level, but a different scenario each time
-      newGame(dealTheme(G.theme), G.difficulty, G.k, G.n);
+      newGame(dealTheme(G.theme, G.k), G.difficulty, G.k, G.n);
     };
   }
 
@@ -955,6 +974,13 @@
   const mkSize = () => settings.makeSize || settings.size;
   const mkDiff = () => settings.makeDiff || settings.difficulty;
   const shuffled = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  // greyed examples for "Your own topic" (the third is only used by 5-category grids)
+  const TOPIC_EX = { labels: ['favourite animal', 'spelling word', 'favourite colour'],
+    words: [['a lion', 'a zebra', 'an otter', 'a penguin', 'a hedgehog', 'a tiger'], ['rhythm', 'because', 'island', 'weird', 'necessary', 'busy'],
+      ['red', 'blue', 'green', 'yellow', 'purple', 'orange']] };
+  // scenarios that have enough categories to fill at this size (5-category grids need three)
+  const mkFits = (t, k) => !!t && TH.fillable(t).length >= k - 2;
+  const mkBase = k => { const t = TH.byId(MK.base); return mkFits(t, k) ? t : TH.THEMES.find(x => mkFits(x, k)); };
   // which of the scenario's categories fill the item slots (the player can swap them when there are more)
   function mkSlots(t, k) {
     const f = TH.fillable(t), want = k - 2;
@@ -968,20 +994,20 @@
   function renderMake() {
     $('#home').classList.add('hidden'); $('#play').classList.add('hidden'); $('#review').classList.add('hidden'); $('#make').classList.remove('hidden');
     const size = mkSize(), [k, n] = SIZES[size];
-    let diff = mkDiff(); if (diff === 'fiendish' && !bankOf('fiendish', size).length) diff = 'hard';
+    let diff = mkDiff(); if (!levelOk(diff, size)) diff = diff === 'easy' ? 'medium' : 'hard';
     document.querySelectorAll('#makeMode button').forEach(b => { b.classList.toggle('on', b.dataset.m === MK.mode); b.onclick = () => { MK.mode = b.dataset.m; saveMk(); renderMake(); }; });
     document.querySelectorAll('#makeSize button').forEach(b => { b.classList.toggle('on', b.dataset.s === size); b.onclick = () => { settings.makeSize = b.dataset.s; saveSettings(); renderMake(); }; });
     document.querySelectorAll('#makeDiff button').forEach(b => {
       b.classList.toggle('on', b.dataset.d === diff);
-      b.disabled = b.dataset.d === 'fiendish' && !bankOf('fiendish', size).length;
+      b.disabled = (b.dataset.d === 'fiendish' || b.dataset.d === 'easy') && !levelOk(b.dataset.d, size);
       b.onclick = () => { settings.makeDiff = b.dataset.d; saveSettings(); renderMake(); };
     });
     const nameBox = `<div class="mk"><h4>${WORD[n].replace(/^./, c => c.toUpperCase())} names</h4><p class="sub">Leave a box empty and it gets a name from the usual list.</p>${boxes('names', MK.names, n, ['name'])}</div>`;
     let html = '';
     if (MK.mode === 'scenario') {
-      const t = TH.byId(MK.base) || TH.THEMES[0]; MK.base = t.id;
-      const { f, ids } = mkSlots(t, k), a = t.anchor, vals = a.values(n, () => 0.5);
-      html += `<div class="mk"><h4>Scenario</h4><select id="mkBase">${TH.THEMES.slice().sort((x, y) => x.title.replace(/^The /, '').localeCompare(y.title.replace(/^The /, ''))).map(x => `<option value="${x.id}" ${x.id === t.id ? 'selected' : ''}>${esc(x.title)}</option>`).join('')}</select>
+      const t = mkBase(k); MK.base = t.id;
+      const { f, ids } = mkSlots(t, k), a = t.anchor, vals = a.evenValues ? a.evenValues(n) : a.values(n, () => 0.5); // the Corner Deli picks prices at random: a fixed "random" never finished
+      html += `<div class="mk"><h4>Scenario</h4><select id="mkBase">${TH.THEMES.filter(x => mkFits(x, k)).sort((x, y) => x.title.replace(/^The /, '').localeCompare(y.title.replace(/^The /, ''))).map(x => `<option value="${x.id}" ${x.id === t.id ? 'selected' : ''}>${esc(x.title)}</option>`).join('')}</select>
         <p class="say">${esc(t.intro(n))}</p><p class="say">${esc(a.name)}: ${esc(a.fmt(vals[0]))} to ${esc(a.fmt(vals[n - 1]))} — these stay as they are.</p></div>` + nameBox;
       ids.forEach((id, j) => {
         const c = f.find(x => x.id === id), mine = ((MK.scen[t.id] || {})[id]) || [];
@@ -996,8 +1022,8 @@
         <label class="f">Numbers</label><select id="mkAnc">${Object.keys(A).map(id => `<option value="${id}" ${id === T.anchor ? 'selected' : ''}>${A[id].name} (${A[id].fmt(A[id].values(n)[0])} to ${A[id].fmt(A[id].values(n)[n - 1])})</option>`).join('')}</select>
         <p class="say" id="sayIntro"></p></div>` + nameBox;
       for (let j = 0; j < k - 2; j++) {
-        html += `<div class="mk" data-slot="${j}"><h4>Category ${j + 1}</h4><label class="f">What is it?</label><input class="mkLab" data-j="${j}" value="${esc(T.labels[j] || '')}" placeholder="${['favourite animal', 'spelling word'][j]}" maxlength="24">
-          <label class="f">${WORD[n].replace(/^./, c => c.toUpperCase())} words</label>${boxes('w' + j, T.words[j] || [], n, [['a lion', 'a zebra', 'an otter', 'a penguin', 'a hedgehog', 'a tiger'], ['rhythm', 'because', 'island', 'weird', 'necessary', 'busy']][j])}<p class="say" id="say${j}"></p></div>`;
+        html += `<div class="mk" data-slot="${j}"><h4>Category ${j + 1}</h4><label class="f">What is it?</label><input class="mkLab" data-j="${j}" value="${esc(T.labels[j] || '')}" placeholder="${TOPIC_EX.labels[j]}" maxlength="24">
+          <label class="f">${WORD[n].replace(/^./, c => c.toUpperCase())} words</label>${boxes('w' + j, T.words[j] || [], n, TOPIC_EX.words[j])}<p class="say" id="say${j}"></p></div>`;
       }
     }
     $('#makeForm').innerHTML = html; $('#makeMsg').innerHTML = '';
@@ -1039,7 +1065,7 @@
       const T = MK.topic, ent = T.entity;
       $('#sayIntro').textContent = `${WORD[n].replace(/^./, c => c.toUpperCase())} ${TH.ENTITIES[ent]} each ${TH.TOPIC_ANCHORS[T.anchor].intro(n)}.`;
       for (let j = 0; j < k - 2; j++) {
-        const L = (T.labels[j] || '').trim().toLowerCase() || ['favourite animal', 'spelling word'][j], w = first(T.words[j], ['a lion', 'rhythm'][j]);
+        const L = (T.labels[j] || '').trim().toLowerCase() || TOPIC_EX.labels[j], w = first(T.words[j], TOPIC_EX.words[j][0]);
         const el = $('#say' + j); if (el) el.innerHTML = `Reads like: <b>${esc(nm)}'s ${esc(L)} is ${esc(w)}.</b> · <b>The ${esc(ent)} whose ${esc(L)} is ${esc(w)}…</b>`;
       }
     }
@@ -1047,7 +1073,7 @@
   $('#makeBack').onclick = () => renderHome();
   $('#makeGo').onclick = () => {
     const size = mkSize(), [k, n] = SIZES[size];
-    let diff = mkDiff(); if (diff === 'fiendish' && !bankOf('fiendish', size).length) diff = 'hard';
+    let diff = mkDiff(); if (!levelOk(diff, size)) diff = diff === 'easy' ? 'medium' : 'hard';
     const names = shuffled(TH.NAMES);
     let spec, fill;
     if (MK.mode === 'scenario') {
@@ -1114,20 +1140,40 @@
     // grid: same staircase as the app
     const colCats = []; for (let c = 1; c < k; c++) colCats.push(c);
     const rowCats = [0]; for (let c = k - 1; c >= 2; c--) rowCats.push(c);
-    const LPX = 24, CAT = 34;
-    const lab = Math.ceil(Math.max(...P.cats.flatMap(c => c.items.map(i => measure(i.name, LPX))))) + 18;
-    const cols = colCats.length * n, rows = rowCats.length * n;
-    const cs = Math.floor(Math.min(64, (W - CAT - lab) / cols, (PH * 0.5 - CAT - lab) / rows));
+    const CAT = 34, cols = colCats.length * n, rows = rowCats.length * n;
+    // the grid gets up to half the page; a big grid (5 categories) gives some back when the clues would
+    // otherwise print very small, and its labels shrink to fit the smaller squares
+    const fitClues = (px, top) => {
+      const ls = []; P.clues.forEach(c => wrap(c.text, px, W - 50).forEach((l, i) => ls.push([i ? '' : c.id + '.', l])));
+      return { lines: ls, fits: ls.length * px * 1.4 + P.clues.length * px * 0.35 <= PH - 110 - top };
+    };
+    const sizeFor = share => {
+      let LPX = 24, lab, cs;
+      for (let pass = 0; pass < 4; pass++) {
+        lab = Math.ceil(Math.max(...P.cats.flatMap(c => c.items.map(i => measure(i.name, LPX))))) + 18;
+        cs = Math.floor(Math.min(64, (W - CAT - lab) / cols, (PH * share - CAT - lab) / rows));
+        const want = k < 5 ? 24 : Math.min(24, Math.floor(cs * 0.75));
+        if (want === LPX) break;
+        LPX = want;
+      }
+      return { LPX, lab, cs };
+    };
+    let L = sizeFor(0.5);
+    if (k >= 5) for (const share of [0.46, 0.42]) {
+      if (fitClues(18, y + CAT + L.lab + rows * L.cs + 56).fits) break;
+      L = sizeFor(share);
+    }
+    const { LPX, lab, cs } = L;
     const gw = CAT + lab + cols * cs, gx = PM + Math.max(0, (W - gw) / 2), gy = y;
     const x0 = gx + CAT + lab, y0 = gy + CAT + lab;
     colCats.forEach((c, ci) => {
       b += T(x0 + ci * n * cs + n * cs / 2, gy + 24, P.cats[c].name.toUpperCase(), 18, { anchor: 'middle', weight: 700, fill: '#4a5566' });
-      P.cats[c].items.forEach((it, i) => { const x = x0 + (ci * n + i) * cs + cs / 2 + 8; b += T(x, y0 - 10, it.name, LPX, { rot: true }); });
+      P.cats[c].items.forEach((it, i) => { const x = x0 + (ci * n + i) * cs + cs / 2 + LPX / 3; b += T(x, y0 - 10, it.name, LPX, { rot: true }); });
     });
     rowCats.forEach((c, ri) => {
       const cy = y0 + ri * n * cs + n * cs / 2;
       b += T(gx + 24, cy, P.cats[c].name.toUpperCase(), 18, { anchor: 'middle', weight: 700, fill: '#4a5566', rot: true });
-      P.cats[c].items.forEach((it, i) => { b += T(x0 - 10, y0 + (ri * n + i) * cs + cs / 2 + 8, it.name, LPX, { anchor: 'end' }); });
+      P.cats[c].items.forEach((it, i) => { b += T(x0 - 10, y0 + (ri * n + i) * cs + cs / 2 + LPX / 3, it.name, LPX, { anchor: 'end' }); });
     });
     rowCats.forEach((rc, ri) => colCats.forEach((cc, ci) => {
       if (ri !== 0 && ci >= k - 1 - ri) return;
@@ -1235,7 +1281,7 @@
     ['#home', '#play', '#make', '#review', '#learn'].forEach(id => $(id).classList.add('hidden'));
     $('#stories').classList.remove('hidden'); window.scrollTo(0, 0);
     $('#storiesSub').textContent = `${k}×${n} · ${LEVEL[settings.difficulty]} · change these on the home screen`;
-    const az = TH.THEMES.slice().sort((a, b) => a.title.replace(/^The /, '').localeCompare(b.title.replace(/^The /, '')));
+    const az = TH.THEMES.filter(t => fitsK(t, k)).sort((a, b) => a.title.replace(/^The /, '').localeCompare(b.title.replace(/^The /, '')));
     $('#storyList').innerHTML = az.map(t => `<button data-id="${t.id}"><b>${esc(t.title)}</b><span>${esc(t.intro(n))}</span></button>`).join('');
     $('#storyList').querySelectorAll('button').forEach(b => b.onclick = () => newGame(b.dataset.id, settings.difficulty, k, n));
   }
