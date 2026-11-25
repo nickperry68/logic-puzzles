@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4efe4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Logic Puzzles</title>
+<style>
+  :root {
+    --paper: #f4efe4; --paper2: #ebe4d4; --card: #fffaf0; --ink: #1d2a3a; --ink2: #4a5566; --faint: #8b8f96;
+    --rule: #a39780; --xmark: #5d6673; --red: #c23b2e; --marker: rgba(255, 210, 0, .45); --blue: #2f5f8f;
+    --line: #f9f0d7; --crossbg: #fbf3dc; --factbg: #dde8f3; --wrongbg: #f8ddd8; --whybg: #eef3f8; --input: #fff; --onink2: #c9d1dc; --veil: rgba(244, 239, 228, .8);
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --fs: 1;
+  }
+  /* styles (Settings → Look) */
+  html[data-style="clean"] { --paper: #ffffff; --paper2: #eef1f4; --card: #f8f9fb; --ink: #16202b; --ink2: #4b5563; --faint: #8a919b; --rule: #c5cbd3; --xmark: #5b6470;
+    --red: #d0342c; --blue: #2563eb; --marker: rgba(255, 214, 10, .5); --line: #eef4fb; --crossbg: #f3f6fa; --factbg: #dbeafe; --whybg: #eef4ff; --onink2: #c3cad3; --veil: rgba(255, 255, 255, .8);
+    --serif: var(--sans); }
+  html[data-style="night"] { --paper: #121820; --paper2: #1d2630; --card: #1a222c; --ink: #ebe7df; --ink2: #aeb6c1; --faint: #7c8591; --rule: #3e4856; --xmark: #9aa3ae;
+    --red: #ff7a6b; --blue: #8bbcff; --marker: #3f4f9e; --line: #232f3b; --crossbg: #212b36; --factbg: #213d5c; --wrongbg: #5a2620; --whybg: #1c2a3a; --input: #0f141a; --onink2: #3a4452; --veil: rgba(18, 24, 32, .8); }
+  html[data-style="contrast"] { --paper: #ffffff; --paper2: #f0f0f0; --card: #ffffff; --ink: #000000; --ink2: #1a1a1a; --faint: #555555; --rule: #000000; --xmark: #000000;
+    --red: #c00000; --blue: #003db8; --marker: #ffe100; --line: #fff3a8; --crossbg: #ffffff; --factbg: #b8d3ff; --wrongbg: #ffc4c4; --whybg: #e6eeff; --onink2: #e0e0e0; --veil: rgba(255, 255, 255, .9);
+    --serif: var(--sans); }
+  html[data-style="night"] .cell.target { animation-name: pulseNight; }
+  @keyframes pulseNight { to { background: #6377d6; } }
+  html[data-style="night"] .lclue { border-left-color: var(--blue); }
+  html[data-style="contrast"] .lab, html[data-style="contrast"] #clues li { font-weight: 600; }
+  html[data-text="large"] { --fs: 1.15; } html[data-text="larger"] { --fs: 1.3; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); -webkit-tap-highlight-color: transparent; }
+  body { min-height: 100vh; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .hidden { display: none !important; }
+
+  /* ---------- home ---------- */
+  #home { max-width: 560px; margin: 0 auto; padding: 28px 18px 40px; }
+  .brand { font-family: var(--serif); font-size: 34px; letter-spacing: -.5px; margin: 6px 0 2px; }
+  .brand span { color: var(--red); }
+  .tag { color: var(--ink2); margin: 0 0 24px; }
+  .seg { display: flex; border: 1.5px solid var(--ink); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+  .seg button { flex: 1; padding: 10px 0; background: none; border: 0; font-weight: 600; }
+  .seg button + button { border-left: 1.5px solid var(--ink); }
+  .seg button.on { background: var(--ink); color: var(--paper); }
+  .seg button:disabled { color: var(--faint); text-decoration: line-through; }
+  #sizeSeg { margin-bottom: 6px; }
+  .sizenote { margin: 0 2px 14px; font-size: 13px; color: var(--ink2); }
+  .themes { display: grid; gap: 12px; }
+  .theme { text-align: left; background: var(--card); border: 1.5px solid var(--ink); border-radius: 12px; padding: 14px 16px; box-shadow: 3px 3px 0 var(--ink); }
+  .theme:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+  .theme h3 { font-family: var(--serif); font-size: 20px; margin: 0 0 4px; }
+  .theme p { margin: 0; color: var(--ink2); font-size: calc(14px * var(--fs)); line-height: 1.35; }
+  .theme.surprise { background: var(--ink); color: var(--paper); }
+  .theme.surprise p { color: var(--onink2); }
+  .continue { width: 100%; margin-bottom: 18px; padding: 12px; border-radius: 12px; border: 1.5px dashed var(--ink); background: none; font-weight: 600; }
+
+  /* ---------- play ---------- */
+  #play { max-width: 1100px; margin: 0 auto; padding: 8px 10px 120px; }
+  .bar { display: flex; align-items: center; gap: 8px; padding: 6px 2px 8px; }
+  .bar .title { flex: 1; min-width: 0; }
+  .bar h2 { font-family: var(--serif); font-size: 21px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar small { color: var(--ink2); text-transform: capitalize; }
+  .icon { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid var(--ink); background: none; font-size: 18px; display: grid; place-items: center; }
+  #timer { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 48px; text-align: right; }
+  .intro { color: var(--ink2); font-size: calc(14px * var(--fs)); line-height: 1.4; margin: 0 2px 10px; }
+  .layout { display: grid; gap: 14px; }
+  @media (min-width: 900px) { .layout { grid-template-columns: auto 1fr; align-items: start; } #clues { position: sticky; top: 10px; } }
+
+  .gridwrap { overflow-x: auto; padding-bottom: 4px; }
+  #grid { display: grid; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+  .catname { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .catname.v { writing-mode: vertical-rl; transform: rotate(180deg); }
+  .lab { font-size: calc(12.5px * var(--fs)); color: var(--ink); font-weight: 500; display: flex; align-items: center; overflow: hidden; white-space: nowrap; padding: 0 5px; border-radius: 4px; transition: background .15s; }
+  .lab.col { writing-mode: vertical-rl; transform: rotate(180deg); justify-content: flex-start; padding: 5px 0; }
+  .lab.row { justify-content: flex-end; }
+  .lab.hl { background: var(--marker); font-weight: 700; }
+  .cell { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); display: grid; place-items: center; font-size: 13px; line-height: 1; cursor: pointer; position: relative; }
+  .cell.bl { border-left: 2px solid var(--ink); } .cell.bt { border-top: 2px solid var(--ink); }
+  .cell.br { border-right: 2px solid var(--ink); } .cell.bb { border-bottom: 2px solid var(--ink); }
+  .cell svg { width: 86%; height: 86%; display: block; }
+  .cell.no { color: var(--xmark); }
+  .cell.no svg { width: 64%; height: 64%; }
+  .cell.yes { color: var(--ink); }
+  .cell.wrong { color: var(--red) !important; background: var(--wrongbg); }
+  .cell.cross { background: var(--crossbg); }
+  .cell.fact { background: var(--factbg); }
+    .cell.line { background: var(--line); }
+  .cell.line.yes, .cell.line.no { background: var(--line); }
+  .cell.here { box-shadow: inset 0 0 0 2px var(--blue); }
+  .lab.line { background: var(--line); font-weight: 600; }
+  .cell.target { background: var(--marker); animation: pulse 1s ease-in-out infinite alternate; }
+  @keyframes pulse { to { background: rgba(255, 210, 0, .85); } }
+
+  .tools { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; justify-content: center; padding: 10px 10px calc(10px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, var(--paper) 30%); z-index: 5; }
+  .tools button { flex: 0 1 120px; padding: 12px 0; border-radius: 12px; border: 1.5px solid var(--ink); background: var(--card); font-weight: 600; box-shadow: 2px 2px 0 var(--ink); }
+  .tools button.primary { background: var(--ink); color: var(--paper); }
+  .tools button:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+
+  #clues { list-style: none; margin: 0; padding: 0; counter-reset: clue; }
+  #clues li { display: flex; gap: 10px; padding: 10px 8px; border-bottom: 1px solid var(--rule); line-height: 1.4; font-size: calc(15px * var(--fs)); border-radius: 6px; cursor: pointer; }
+  #clues li b { font-family: var(--serif); min-width: 20px; color: var(--ink2); }
+  #clues li.done { color: var(--faint); text-decoration: line-through; }
+  #clues li.hint { background: var(--marker); }
+  .cluehead { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); margin: 4px 8px; }
+
+  /* ---------- sheet / menu / toast ---------- */
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; justify-content: center; pointer-events: none; }
+  .sheet .card { pointer-events: auto; width: 100%; max-width: 560px; background: var(--card); border: 1.5px solid var(--ink); border-bottom: 0; border-radius: 16px 16px 0 0; padding: 16px 18px calc(18px + env(safe-area-inset-bottom)); box-shadow: 0 -6px 24px rgba(29, 42, 58, .18); max-height: 60vh; overflow: auto; }
+  .card h4 { font-family: var(--serif); font-size: 19px; margin: 0 0 6px; }
+  .card p { margin: 6px 0; line-height: 1.4; font-size: calc(16px * var(--fs)); }
+  .card ul { margin: 6px 0 10px; padding-left: 20px; line-height: 1.5; }
+  .card .row { display: flex; gap: 8px; margin-top: 12px; }
+  .card .row button { flex: 1; padding: 11px; border-radius: 10px; border: 1.5px solid var(--ink); background: none; font-weight: 600; }
+  .card .row button.primary { background: var(--ink); color: var(--paper); }
+  .why { margin: 8px 0 0; padding: 8px 10px; border-left: 3px solid var(--blue); background: var(--whybg); border-radius: 0 8px 8px 0; font-size: 14px; }
+  .why p { margin: 4px 0; }
+  .chip { display: inline-block; background: var(--marker); border-radius: 6px; padding: 1px 7px; font-weight: 600; margin-right: 4px; }
+  .lvl { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); }
+  #menu .card label { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+  #menu .card button.item { display: block; width: 100%; text-align: left; padding: 12px 0; background: none; border: 0; border-bottom: 1px solid var(--rule); font-weight: 600; }
+  #toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 10px; transition: transform .25s; z-index: 30; font-weight: 600; max-width: 90vw; text-align: center; }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  .overlay { position: fixed; inset: 0; background: rgba(29, 42, 58, .45); z-index: 25; display: grid; place-items: center; padding: 20px; }
+  .overlay .card { background: var(--card); border: 1.5px solid var(--ink); border-radius: 16px; padding: 22px; max-width: 380px; width: 100%; text-align: center; box-shadow: 4px 4px 0 var(--ink); }
+  .overlay h3 { font-family: var(--serif); font-size: 28px; margin: 0 0 6px; }
+  .overlay .row { display: flex; gap: 8px; margin-top: 16px; }
+  .reviewlink { display: block; margin: 28px auto 0; background: none; border: 0; color: var(--ink2); text-decoration: underline; font-size: 13px; cursor: pointer; }
+  #review { max-width: 560px; margin: 0 auto; padding: 8px 14px 40px; }
+  #revList { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  #revList button { border: 1.5px solid var(--ink); border-radius: 10px; background: var(--card); padding: 8px 0 6px; font-weight: 700; font-size: 16px; cursor: pointer; }
+  #revList button small { display: block; font-weight: 400; font-size: 11px; color: #c99700; min-height: 13px; letter-spacing: -1px; }
+  #revList button.done { background: var(--paper2); }
+  .revstats { color: var(--ink2); font-size: 14px; margin: 8px 0 0; }
+  .ratehead { margin: 14px 0 2px; color: var(--ink2); font-size: 14px; }
+  .stars { display: flex; justify-content: center; gap: 4px; }
+  .stars button { background: none; border: 0; font-size: 30px; line-height: 1; color: #d6ccb6; padding: 2px 4px; cursor: pointer; }
+  .stars button.on { color: #e0a800; }
+  .overlay .row button { flex: 1; padding: 12px; border-radius: 10px; border: 1.5px solid var(--ink); background: none; font-weight: 600; }
+  .overlay .row button.primary { background: var(--ink); color: var(--paper); }
+  .loading { position: fixed; inset: 0; display: grid; place-items: center; background: var(--veil); z-index: 40; font-family: var(--serif); font-size: 20px; }
+  /* ---------- make your own ---------- */
+  .theme.make { background: var(--marker); }
+  #make { max-width: 560px; margin: 0 auto; padding: 8px 14px 60px; }
+  #make .seg { margin-bottom: 12px; }
+  .mk { background: var(--card); border: 1.5px solid var(--ink); border-radius: 12px; padding: 12px 14px; margin: 0 0 14px; }
+  .mk h4 { font-family: var(--serif); font-size: 18px; margin: 0 0 2px; }
+  .mk .sub { color: var(--ink2); font-size: 13px; margin: 0 0 8px; }
+  .mk select, .mk input { font: inherit; font-size: 16px; width: 100%; padding: 8px 10px; border: 1px solid var(--rule); border-radius: 8px; background: var(--input); color: var(--ink); }
+  .mk .boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+  .mk .boxes input::placeholder { color: var(--faint); }
+  .mk .say { margin: 8px 0 0; font-size: 14px; color: var(--ink2); line-height: 1.35; }
+  .mk .say b { color: var(--ink); font-weight: 600; }
+  .mk label.f { display: block; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); margin: 8px 0 4px; }
+  #makeMsg { margin: 0 2px 12px; line-height: 1.4; }
+  #makeMsg .bad { color: var(--red); font-weight: 600; margin: 2px 0; }
+  #makeMsg .warn { color: var(--ink2); margin: 2px 0; }
+  .makego { width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid var(--ink); background: var(--ink); color: var(--paper); font-weight: 700; font-size: 17px; box-shadow: 3px 3px 0 #000; }
+  .sharebtn { display: block; width: 100%; padding: 13px; margin: 8px 0 0; border-radius: 10px; border: 1.5px solid var(--ink); background: none; font-weight: 600; text-align: left; }
+  .sharebtn.primary { background: var(--ink); color: var(--paper); }
+  .sharebtn small { display: block; font-weight: 400; opacity: .75; font-size: 13px; }
+  #printArea { display: none; }
+  @media print {
+    @page { size: A4; margin: 0; }
+    body { padding: 0; background: #fff; }
+    body > *:not(#printArea) { display: none !important; }
+    #printArea { display: block; }
+    #printArea svg { display: block; width: 210mm; height: 296mm; page-break-after: always; break-after: page; }
+    #printArea svg:last-child { page-break-after: auto; break-after: auto; }
+  }
+  /* ---------- how to solve ---------- */
+  #learn { max-width: 640px; margin: 0 auto; padding: 8px 16px 60px; line-height: 1.5; font-size: calc(16px * var(--fs)); }
+  .lnav { display: flex; gap: 6px; margin: 4px 0 14px; flex-wrap: wrap; position: sticky; top: 0; background: var(--paper); padding: 6px 0; z-index: 2; }
+  .lnav a { flex: 1; text-align: center; padding: 8px 6px; border: 1.5px solid var(--ink); border-radius: 10px; color: var(--ink); text-decoration: none; font-weight: 600; font-size: 14px; }
+  #learn section { background: var(--card); border: 1.5px solid var(--ink); border-radius: 12px; padding: 14px 16px; margin: 0 0 16px; scroll-margin-top: 60px; }
+  #learn h3 { font-family: var(--serif); font-size: 22px; margin: 0 0 4px; }
+  #learn h4 { margin: 16px 0 4px; font-size: 16px; }
+  #learn p, #learn li { margin: 6px 0; }
+  #learn ul { padding-left: 20px; }
+  .lsub { color: var(--ink2); font-size: 14px; }
+  .lclue { margin: 8px 0; padding: 8px 12px; border-left: 3px solid var(--ink); background: var(--paper2); border-radius: 0 8px 8px 0; font-family: var(--serif); }
+  .lso { display: inline-block; background: var(--marker); border-radius: 6px; padding: 1px 8px; font-weight: 600; margin: 2px 4px 2px 0; }
+  .howlink { display: inline-block; margin-top: 6px; background: none; border: 0; padding: 0; color: var(--blue); text-decoration: underline; font-size: 14px; }
+  .learnbtn { display: block; width: 100%; margin: 16px 0 0; padding: 12px; border-radius: 12px; border: 1.5px solid var(--ink); background: none; font-weight: 600; }
+
+  /* ---------- stories list / settings ---------- */
+  .brandrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .theme.big { padding: 18px 16px; }
+  .theme.big h3 { font-size: 22px; }
+  #stories { max-width: 560px; margin: 0 auto; padding: 8px 14px 40px; }
+  #storyList { display: grid; gap: 8px; }
+  #storyList button { text-align: left; background: var(--card); border: 1.5px solid var(--ink); border-radius: 12px; padding: 11px 14px; color: var(--ink); }
+  #storyList b { font-family: var(--serif); font-size: calc(17px * var(--fs)); display: block; }
+  #storyList span { color: var(--ink2); font-size: calc(13.5px * var(--fs)); line-height: 1.35; display: block; margin-top: 2px; }
+  .styles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 6px 0 4px; }
+  .styles button { border-radius: 10px; padding: 10px; text-align: left; border: 2px solid transparent; font-weight: 600; }
+  .styles button.on { outline: 3px solid var(--blue); outline-offset: 2px; }
+  .styles button small { display: block; font-weight: 400; font-size: 12px; opacity: .8; }
+  .setlabel { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); margin: 14px 0 4px; }
+  .card .seg { margin: 4px 0 8px; }
+  .card label.tog { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-top: 1px solid var(--rule); margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div id="home" class="screen">
+  <div class="brandrow"><div class="brand">Logic <span>Puzzles</span></div><button class="icon" id="setBtn" aria-label="Settings">⚙</button></div>
+  <p class="tag">Grid puzzles that read like a person wrote them, with hints that explain why.</p>
+  <button class="continue hidden" id="continueBtn"></button>
+  <div class="seg" id="sizeSeg">
+    <button data-s="3x3">3×3</button><button data-s="3x4">3×4</button><button data-s="4x4">4×4</button><button data-s="4x5">4×5</button><button data-s="4x6">4×6</button>
+  </div>
+  <p class="sizenote" id="sizeNote"></p>
+  <div class="seg" id="diffSeg">
+    <button data-d="easy">Easy</button><button data-d="medium">Medium</button><button data-d="hard">Hard</button><button data-d="fiendish">Fiendish</button>
+  </div>
+  <div class="themes" id="themes"></div>
+  <button class="learnbtn" id="learnBtn">How to solve: from the obvious to Fiendish</button>
+  <button class="reviewlink" id="reviewBtn">Skeleton review</button>
+</div>
+
+<div id="review" class="screen hidden">
+  <div class="bar">
+    <button class="icon" id="revBack" aria-label="Home">‹</button>
+    <div class="title"><h2>Skeleton review</h2><small style="text-transform:none" id="revSub">Every Hard skeleton in order, in a plain theme</small></div>
+  </div>
+  <div class="seg" id="revLevel"><button data-l="hard">Hard</button><button data-l="fiendish">Fiendish</button></div>
+  <div class="seg" id="revSeg"></div>
+  <p class="sizenote" id="revNote"></p>
+  <div id="revList"></div>
+</div>
+
+<div id="stories" class="screen hidden">
+  <div class="bar">
+    <button class="icon" id="storiesBack" aria-label="Home">‹</button>
+    <div class="title"><h2>Pick a story</h2><small style="text-transform:none" id="storiesSub"></small></div>
+  </div>
+  <div id="storyList"></div>
+</div>
+
+<div id="make" class="screen hidden">
+  <div class="bar">
+    <button class="icon" id="makeBack" aria-label="Home">‹</button>
+    <div class="title"><h2>Make your own</h2><small style="text-transform:none">Your names and words, in a puzzle that works</small></div>
+  </div>
+  <div class="seg" id="makeMode"><button data-m="scenario">A scenario</button><button data-m="topic">Your own topic</button></div>
+  <div class="seg" id="makeSize"><button data-s="3x3">3×3</button><button data-s="3x4">3×4</button><button data-s="4x4">4×4</button><button data-s="4x5">4×5</button><button data-s="4x6">4×6</button></div>
+  <div class="seg" id="makeDiff"><button data-d="easy">Easy</button><button data-d="medium">Medium</button><button data-d="hard">Hard</button><button data-d="fiendish">Fiendish</button></div>
+  <div id="makeForm"></div>
+  <div id="makeMsg"></div>
+  <button class="makego" id="makeGo">Make the puzzle</button>
+</div>
+
+<div id="learn" class="screen hidden">
+  <div class="bar">
+    <button class="icon" id="learnBack" aria-label="Back">‹</button>
+    <div class="title"><h2>How to solve</h2><small style="text-transform:none">From the obvious to Fiendish, one step at a time</small></div>
+  </div>
+  <nav class="lnav"><a href="#l-grid">The grid</a><a href="#l-1">Step 1</a><a href="#l-2">Step 2</a><a href="#l-3">Step 3</a></nav>
+
+  <section id="l-grid">
+    <h3>The grid</h3>
+    <p>Every square asks one question: <em>are these two the same person?</em> Tap once for <b>✕</b> (no), twice for <b>✓</b> (yes), three times to clear.</p>
+    <p>Inside each block, every row and every column ends up with exactly one ✓. That one rule does a lot of the work.</p>
+    <p>Every puzzle has exactly one answer, and you never need to guess. If you're stuck, there's always a move you can work out.</p>
+  </section>
+
+  <section id="l-1">
+    <h3>Step 1 · Read it straight off</h3>
+    <p class="lsub">Easy puzzles only need these.</p>
+    <h4>Say what it says</h4>
+    <div class="lclue">Ella wore the red cap.</div>
+    <p>Tick Ella / Red. <span class="lso">✓ Ella = Red</span></p>
+    <div class="lclue">Tom didn't order ham.</div>
+    <p><span class="lso">✕ Tom = Ham</span></p>
+    <h4>A tick crosses out its row and column</h4>
+    <p>Once Ella is red, nobody else is red and Ella isn't any other colour. (With auto-cross on, the app does this for you.)</p>
+    <h4>Last one standing</h4>
+    <p>If every square but one in a row or column is crossed, the last one is the ✓.</p>
+    <h4>The quiet "no"s</h4>
+    <div class="lclue">Of Gorge and Ringo, one swims for the Penguins and the other for the Otters.</div>
+    <p>You don't know which way round yet, but you do know neither swims for the Dolphins or the Seals, and Gorge and Ringo are different people.</p>
+    <div class="lclue">Amy, Ben, the customer who had cola and the one who ordered tuna were four different customers.</div>
+    <p>Every pair in that list is a ✕: Amy isn't the cola drinker, cola isn't tuna, and so on.</p>
+  </section>
+
+  <section id="l-2">
+    <h3>Step 2 · One clue plus your grid</h3>
+    <p class="lsub">Medium puzzles need these: read a clue against what you've already marked.</p>
+    <h4>Number clues rule out the ends</h4>
+    <div class="lclue">Susan paid £2 more than the customer who had the coffee.</div>
+    <p>Three things straight away:</p>
+    <ul>
+      <li>Susan didn't have the coffee (she paid more than that person).</li>
+      <li>Susan can't be on the lowest prices: there has to be room £2 below her.</li>
+      <li>The coffee drinker can't be on the highest prices: there has to be room £2 above.</li>
+    </ul>
+    <p>With prices £4 to £8: <span class="lso">✕ Susan = £4, £5</span> <span class="lso">✕ Coffee = £7, £8</span></p>
+    <p>"Lower than" and "ahead of" clues work the same way: the lower one can't be last, the higher one can't be first.</p>
+    <h4>Number clues and your grid</h4>
+    <div class="lclue">John had a lane number one higher than Paul.</div>
+    <p>If your grid already says Paul can only be in lane 2 or 3, then John can only be in lane 3 or 4.</p>
+    <h4>Either / or</h4>
+    <div class="lclue">Cara bought either nachos or a hot dog.</div>
+    <p>Cross out every other snack for Cara. Later, once one of the two is ruled out, the other is her ✓.</p>
+    <h4>Carry facts across</h4>
+    <p>Once you know Ben ordered the ham, Ben and "the ham customer" are the same person. Anything you know about one is true of the other: if Ben didn't pay £4, the ham customer didn't either. Look across every block for these.</p>
+  </section>
+
+  <section id="l-3">
+    <h3>Step 3 · Two clues together</h3>
+    <p class="lsub">Hard and Fiendish puzzles. No single clue gives you anything new, but two together do. Fiendish needs this many times over.</p>
+    <h4>The "what if?" test</h4>
+    <p>Pick a square and ask: <em>what if this were a ✓?</em> Follow what the clues then force. If you hit a dead end (someone with nowhere left to go, or a clue that can't be true) the square must be a ✕. That isn't guessing: you only mark it once you've shown the other way is impossible.</p>
+    <div class="lclue">Audrey paid £2 more than the customer who ordered egg mayo.</div>
+    <div class="lclue">Kevin, Ben, the egg mayo customer and the smoothie customer were four different customers.</div>
+    <p>Your grid says Kevin paid £5, £6 or £7. Could Ben have paid £6?</p>
+    <ul>
+      <li>Audrey isn't egg mayo (she paid more than them) and isn't the smoothie (your grid), so with the second clue all five customers are different people.</li>
+      <li>Audrey and egg mayo are £2 apart: £4 & £6, £5 & £7 or £6 & £8. If Ben has £6, only £5 & £7 is left.</li>
+      <li>Now £5, £6 and £7 are all taken, so Kevin has nowhere to go. Dead end.</li>
+    </ul>
+    <p><span class="lso">✕ Ben = £6</span> And the same test rules out the smoothie customer at £6.</p>
+    <h4>Boxing in</h4>
+    <div class="lclue">John had a lane number one higher than Paul.</div>
+    <p>Your grid says Ringo wears red and Gorge wears yellow. John and Paul sit side by side, so Ringo and Gorge get the other two lanes: 3 & 4, 1 & 4, or 1 & 2. If your grid also says Ringo isn't in lane 4 and Gorge isn't in lane 1, then Ringo is never in lane 2 and Gorge is never in lane 3.</p>
+    <p><span class="lso">✕ Lane 2 = Red</span> <span class="lso">✕ Lane 3 = Yellow</span></p>
+    <h4>Tips</h4>
+    <ul>
+      <li>Start "what if?" with the square that has the fewest options left: dead ends come quicker.</li>
+      <li>Number clues pair well with "four different people" clues, as above.</li>
+      <li>Cross off a clue once everything it says is on your grid, but keep its facts in mind.</li>
+      <li>Stuck? A hint shows where to look first, and its "Why?" plays out the "what if?" for you.</li>
+    </ul>
+  </section>
+</div>
+
+<div id="play" class="screen hidden">
+  <div class="bar">
+    <button class="icon" id="backBtn" aria-label="Home">‹</button>
+    <div class="title"><h2 id="ptitle"></h2><small id="pdiff"></small></div>
+    <span id="timer">0:00</span>
+    <button class="icon" id="menuBtn" aria-label="Menu">⋯</button>
+  </div>
+  <p class="intro" id="pintro"></p>
+  <div class="layout">
+    <div class="gridwrap"><div id="grid"></div></div>
+    <div><div class="cluehead">Clues · tap to cross off</div><ol id="clues"></ol></div>
+  </div>
+  <div class="tools">
+    <button id="undoBtn">Undo</button>
+    <button id="checkBtn">Check</button>
+    <button id="hintBtn" class="primary">Hint</button>
+  </div>
+</div>
+
+<div id="sheet" class="sheet hidden"><div class="card" id="sheetCard"></div></div>
+<div id="menu" class="sheet hidden"><div class="card">
+  <label>Auto-cross when you tick <input type="checkbox" id="autoCross"></label>
+  <button class="item" id="restartBtn">Restart this puzzle</button>
+  <button class="item" id="shareBtn">Share or print this puzzle</button>
+  <button class="item" id="lookBtn">Look and text size</button>
+  <button class="item" id="newBtn">New puzzle (same settings)</button>
+  <button class="item" id="copyRatings">Copy my puzzle ratings</button>
+  <button class="item" id="closeMenu">Close</button>
+  <p style="color:var(--faint);font-size:12px" id="seedInfo"></p>
+</div></div>
+<div id="toast"></div>
+<div id="printArea"></div>
+
+<script src="engine/engine.js"></script>
+<script src="engine/themes.js"></script>
+<script src="engine/bank.js"></script>
+<script>
+(function () {
+  'use strict';
+  const E = window.LPEngine, TH = window.LPThemes, HARD = window.LPBank || {}, FIENDISH = window.LPFiendish || {};
+  // Hard and Fiendish both come from skeleton banks; Fiendish only exists at the sizes in FIENDISH
+  const BANKS = { hard: HARD, fiendish: FIENDISH };
+  const bankOf = (level, size) => (BANKS[level] || {})[size] || [];
+  const LEVEL = { easy: 'Easy', medium: 'Medium', hard: 'Hard', fiendish: 'Fiendish' };
+  const $ = s => document.querySelector(s);
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } },
+  };
+  const settings = Object.assign({ autoCross: true, difficulty: 'medium', size: '4x5' }, store.get('lp.settings') || {});
+  const saveSettings = () => store.set('lp.settings', settings);
+  // size = categories x items
+  const SIZES = { '3x3': [3, 3], '3x4': [3, 4], '4x4': [4, 4], '4x5': [4, 5], '4x6': [4, 6] };
+  if (!SIZES[settings.size]) settings.size = { 3: '3x3', 4: '4x4', 6: '4x6' }[settings.size] || '4x5'; // older saved settings
+  const sizeOf = () => SIZES[settings.size];
+  const WORD = ['', '', 'two', 'three', 'four', 'five', 'six'];
+
+  let G = null;               // current game
+  let cellEls = new Map();    // key -> cell element
+  let labEls = new Map();     // item -> [label elements]
+  let timerId = null;
+
+  const TICK = '<svg viewBox="0 0 24 24"><path d="M4.5 12.8l4.6 4.7L19.8 6.2" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const CROSS = '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+  const key = (x, y) => x < y ? x + ',' + y : y + ',' + x;
+  const fmtTime = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+
+  function toast(msg) {
+    const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // ---------- home ----------
+  function renderHome() {
+    $('#review').classList.add('hidden'); $('#make').classList.add('hidden'); $('#learn').classList.add('hidden'); $('#stories').classList.add('hidden');
+    $('#home').classList.remove('hidden'); $('#play').classList.add('hidden');
+    const [k, n] = sizeOf();
+    document.querySelectorAll('#sizeSeg button').forEach(b => b.classList.toggle('on', b.dataset.s === settings.size));
+    $('#sizeNote').textContent = `${WORD[k]} categories · ${WORD[n]} items each`.replace(/^./, c => c.toUpperCase());
+    if (settings.difficulty === 'fiendish' && !bankOf('fiendish', settings.size).length) settings.difficulty = 'hard';
+    document.querySelectorAll('#diffSeg button').forEach(b => {
+      b.classList.toggle('on', b.dataset.d === settings.difficulty);
+      if (b.dataset.d === 'fiendish') b.disabled = !bankOf('fiendish', settings.size).length;
+    });
+    if (!bankOf('fiendish', settings.size).length && Object.keys(FIENDISH).length) $('#sizeNote').textContent += ' · no Fiendish at this size';
+    const box = $('#themes'); box.innerHTML = '';
+    const card = (cls, title, text, fn) => { const b = document.createElement('button'); b.className = 'theme ' + cls; b.innerHTML = `<h3>${title}</h3><p>${text}</p>`; b.onclick = fn; box.appendChild(b); };
+    card('surprise big', 'Surprise me', `A new puzzle from any of the ${TH.THEMES.length} stories, at your size and level.`, () => newGame(dealTheme(), settings.difficulty, k, n));
+    card('', 'Pick a story', `Choose from all ${TH.THEMES.length}: the Corner Deli, Bonfire Night, the Pub Quiz…`, () => renderStories());
+    card('make', 'Make your own', 'Put in your own names and words (a class, a family, this week\'s spellings) and get a puzzle to play, print or send.', () => renderMake());
+    const ahead = [peekTheme()[0]]; // whatever Surprise me deals next
+    Gen.keepOnly(ahead.map(id => Gen.keyOf(id, settings.difficulty, k, n)));
+    if (!fromBank(settings.difficulty, k, n)) for (const id of ahead) Gen.prefetch(id, settings.difficulty, k, n);
+    const saved = store.get('lp.game');
+    const cb = $('#continueBtn');
+    if (saved && !saved.solved && saved.v === E.GEN_VERSION) { // older engines rebuild a different puzzle from the same seed
+      const t = TH.byId(saved.theme) || { title: saved.title || 'Your puzzle' };
+      cb.textContent = `Continue: ${t.title} (${saved.k || 4}×${saved.n || 5} ${saved.difficulty}, ${fmtTime(saved.elapsed || 0)})`;
+      cb.classList.remove('hidden');
+      cb.onclick = () => resume(saved);
+    } else cb.classList.add('hidden');
+  }
+  document.querySelectorAll('#diffSeg button').forEach(b => b.onclick = () => { settings.difficulty = b.dataset.d; saveSettings(); renderHome(); });
+  document.querySelectorAll('#sizeSeg button').forEach(b => b.onclick = () => { settings.size = b.dataset.s; saveSettings(); renderHome(); });
+
+  // ---------- game lifecycle ----------
+  // ---------- Hard from the skeleton bank ----------
+  // Hard puzzles come from a bank of hand-picked skeletons, dealt like a deck (every one once before
+  // any repeats) and reskinned each time: new theme, shuffled names and items, sometimes flipped.
+  // Skeletons rated 2 stars or less are taken out of the deck.
+  const ratings = () => store.get('lp.ratings') || {};
+  function dealSkeleton(size, level) {
+    const all = bankOf(level, size); if (!all.length) return null;
+    const deckKey = (level === 'fiendish' ? 'lp.fdeck.' : 'lp.deck.') + size;
+    const byId = new Map(all.map(sk => [sk.id, sk]));
+    const r = ratings(), ok = id => byId.has(id) && !(r[size + '#' + id] && r[size + '#' + id].stars <= 2);
+    const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    const ids = all.map(sk => sk.id), knownKey = deckKey.replace('deck', 'known');
+    // saves from before the 23 Nov Fiendish top-up knew the first 13/14/25/17 skeletons; Hard decks knew them all
+    const FIRST = { '3x4': 13, '4x4': 14, '4x5': 25, '4x6': 17 };
+    const known = store.get(knownKey) || (level === 'fiendish' ? ids.slice(0, FIRST[size] || ids.length) : ids);
+    let deck = (store.get(deckKey) || []).filter(ok); // ids no longer in the bank fall away
+    // skeletons added to the bank since this player's deck was made go to the front, so they turn up straight away
+    const fresh = ids.filter(id => !known.includes(id) && !deck.includes(id)).filter(ok);
+    if (!deck.length) deck = shuffle(ids.filter(ok));
+    else if (fresh.length) deck = shuffle(fresh).concat(deck);
+    store.set(knownKey, ids);
+    if (!deck.length) return null;
+    const id = deck.shift(); store.set(deckKey, deck);
+    return { id: size + '#' + id, sk: byId.get(id) };
+  }
+  // General pack: every scenario once, in a shuffled order, before any repeats (avoid = don't deal this one next)
+  function peekTheme() {
+    const ids = TH.THEMES.map(t => t.id);
+    const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    let deck = (store.get('lp.themeDeck') || []).filter(id => ids.includes(id));
+    const known = store.get('lp.themeKnown') || ids.slice(0, 36); // saves from before 20 Nov knew batches 1–3 only
+    // scenarios added since this player's deck was made go to the front, so new ones turn up straight away
+    const fresh = ids.filter(id => !known.includes(id) && !deck.includes(id));
+    if (!deck.length) deck = shuffle(ids.slice());
+    else if (fresh.length) deck = shuffle(fresh).concat(deck);
+    store.set('lp.themeKnown', ids);
+    store.set('lp.themeDeck', deck);
+    return deck;
+  }
+  function dealTheme(avoid) {
+    const deck = peekTheme();
+    let i = deck[0] === avoid && deck.length > 1 ? 1 : 0;
+    const id = deck.splice(i, 1)[0]; store.set('lp.themeDeck', deck);
+    return id;
+  }
+  // Names: the player's own shuffled deck of every name. Each puzzle takes the first ones that fit
+  // (different first letters, no clash with the items); those go to the back, so a name returns only after most others.
+  function dealNames(P, themeId) {
+    const th = TH.byId(themeId), all = TH.NAMES;
+    let deck = (store.get('lp.nameDeck') || []).filter(nm => all.includes(nm));
+    const missing = all.filter(nm => !deck.includes(nm)); // first run, or names added since
+    for (let i = missing.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [missing[i], missing[j]] = [missing[j], missing[i]]; }
+    deck = deck.concat(missing);
+    const picked = th.pickNames(deck, P.n, P);
+    if (!picked) return P;
+    deck = deck.filter(nm => !picked.includes(nm)).concat(picked);
+    store.set('lp.nameDeck', deck);
+    return TH.renamePeople(P, th, picked);
+  }
+  const fromBank = (difficulty, k, n) => bankOf(difficulty, k + 'x' + n).length > 0;
+
+  // ---------- skeleton review ----------
+  // Plays every bank skeleton in order (no flip, plain themes) so each can be judged and rated on its own.
+  const REV_THEMES = ['sandwich', 'race', 'street'];
+  function renderReview(size, level) {
+    level = level || settings.reviewLevel || 'hard';
+    if (!Object.keys(BANKS[level]).length) level = 'hard';
+    const sizes = Object.keys(BANKS[level]).filter(z => BANKS[level][z].length);
+    size = size || settings.reviewSize;
+    if (!sizes.includes(size)) size = sizes.includes('4x5') ? '4x5' : sizes[0];
+    settings.reviewSize = size; settings.reviewLevel = level; saveSettings();
+    $('#revSub').textContent = `Every ${LEVEL[level]} skeleton in order, in a plain theme`;
+    document.querySelectorAll('#revLevel button').forEach(b => {
+      b.classList.toggle('on', b.dataset.l === level);
+      b.disabled = !Object.keys(BANKS[b.dataset.l]).length;
+      b.onclick = () => renderReview(settings.reviewSize, b.dataset.l);
+    });
+    $('#home').classList.add('hidden'); $('#play').classList.add('hidden'); $('#review').classList.remove('hidden');
+    $('#revSeg').innerHTML = sizes.map(z => `<button data-s="${z}" class="${z === size ? 'on' : ''}">${z.replace('x', '×')}</button>`).join('');
+    $('#revSeg').querySelectorAll('button').forEach(b => b.onclick = () => renderReview(b.dataset.s, level));
+    const r = ratings(), all = bankOf(level, size);
+    const rated = all.filter(sk => r[size + '#' + sk.id]).length;
+    $('#revNote').textContent = `${all.length} skeletons · ${rated} rated. Numbers are shown after you solve each one, so they don't colour your view.`;
+    $('#revList').innerHTML = all.map((_, i) => {
+      const x = r[size + '#' + all[i].id];
+      return `<button data-i="${i}" class="${x ? 'done' : ''}">${i + 1}<small>${x ? '★'.repeat(x.stars) : ''}</small></button>`;
+    }).join('');
+    $('#revList').querySelectorAll('button').forEach(b => b.onclick = () => startReview(size, +b.dataset.i, level));
+  }
+  function startReview(size, i, level) {
+    level = level || 'hard';
+    const theme = REV_THEMES[i % REV_THEMES.length], sk = bankOf(level, size)[i];
+    const P = E.reskin(TH.byId(theme), sk, { id: size + '#' + sk.id, flip: false, seed: i + 1, difficulty: level });
+    P.review = { size, i, level };
+    $('#review').classList.add('hidden');
+    start(P, { theme, difficulty: level, seed: P.seed, k: P.k, n: P.n, marks: [], elapsed: 0, done: [], hints: 0 });
+  }
+  $('#reviewBtn').onclick = () => renderReview();
+  $('#revBack').onclick = () => { $('#review').classList.add('hidden'); renderHome(); };
+
+  // ---------- puzzle making, in the background ----------
+  // Hard puzzles take a second or more to make, so a worker makes them off the main thread, and the
+  // next puzzle is made ahead of time. The worker is built from the engine code already on the page,
+  // which also works when index.html is opened straight from disk. If workers aren't available,
+  // puzzles are made on the main thread as before.
+  function workerMain() {
+    self.onmessage = e => {
+      const { key, theme, difficulty, k, n } = e.data;
+      let P = null;
+      for (let tries = 0; tries < 8 && !P; tries++)
+        P = self.LPEngine.generate(self.LPThemes.byId(theme), { difficulty, k, n, seed: Math.floor(Math.random() * 2 ** 31) });
+      self.postMessage({ key, P });
+    };
+  }
+  const Gen = (() => {
+    let worker = null;
+    try {
+      const src = `${LPEngineFactory}\nLPEngineFactory(self);\n${LPThemesFactory}\nLPThemesFactory(self);\n(${workerMain})();`;
+      worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+    } catch (e) { worker = null; }
+    const ready = new Map();   // key -> P (made ahead)
+    const waiting = new Map(); // key -> [resolve]
+    const queue = [];          // keys still to make, most wanted first
+    let busy = null;
+    const keyOf = (theme, difficulty, k, n) => [theme, difficulty, k, n].join('|');
+    const parse = key => { const [theme, difficulty, k, n] = key.split('|'); return { theme, difficulty, k: +k, n: +n }; };
+    function finish(key, P) {
+      busy = null;
+      const w = waiting.get(key);
+      if (w && w.length) { w.shift()(P); if (!w.length) waiting.delete(key); } else if (P) ready.set(key, P);
+      pump();
+    }
+    function makeSync(key) {
+      const o = parse(key); let P = null;
+      for (let tries = 0; tries < 8 && !P; tries++)
+        P = E.generate(TH.byId(o.theme), { difficulty: o.difficulty, k: o.k, n: o.n, seed: Math.floor(Math.random() * 2 ** 31) });
+      return P;
+    }
+    function pump() {
+      if (busy || !queue.length) return;
+      busy = queue.shift();
+      if (worker) worker.postMessage(Object.assign({ key: busy }, parse(busy)));
+      else { const k = busy; setTimeout(() => finish(k, makeSync(k)), 30); }
+    }
+    if (worker) {
+      worker.onmessage = e => finish(e.data.key, e.data.P);
+      worker.onerror = () => { worker = null; if (busy) { const k = busy; busy = null; queue.unshift(k); } pump(); };
+    }
+    return {
+      keyOf,
+      // a puzzle now (instantly if one was made ahead)
+      get(theme, difficulty, k, n) {
+        const key = keyOf(theme, difficulty, k, n);
+        if (ready.has(key)) { const P = ready.get(key); ready.delete(key); return Promise.resolve(P); }
+        return new Promise(res => {
+          if (!waiting.has(key)) waiting.set(key, []);
+          waiting.get(key).push(res);
+          const i = queue.indexOf(key); if (i >= 0) queue.splice(i, 1);
+          if (busy !== key) queue.unshift(key);
+          pump();
+        });
+      },
+      // make one ahead of time, unless it's already made or on its way
+      prefetch(theme, difficulty, k, n) {
+        const key = keyOf(theme, difficulty, k, n);
+        if (ready.has(key) || busy === key || queue.includes(key)) return;
+        queue.push(key); pump();
+      },
+      // forget queued work that no longer matches what the player is looking at
+      keepOnly(keys) { for (let i = queue.length - 1; i >= 0; i--) if (!keys.includes(queue[i]) && !waiting.has(queue[i])) queue.splice(i, 1); },
+      hasWorker: () => !!worker,
+    };
+  })();
+
+  function withLoading(promise, then) {
+    const l = document.createElement('div'); l.className = 'loading'; l.textContent = 'Setting the puzzle…';
+    const t = setTimeout(() => document.body.appendChild(l), 120); // only show it if there's an actual wait
+    promise.then(v => { clearTimeout(t); l.remove(); then(v); });
+  }
+  function newGame(themeId, difficulty, k, n) {
+    k = k || 4; n = n || 5;
+    if (fromBank(difficulty, k, n)) {
+      const d = dealSkeleton(k + 'x' + n, difficulty);
+      if (d) {
+        const P = dealNames(E.reskin(TH.byId(themeId), d.sk, { id: d.id, difficulty }), themeId);
+        return start(P, { theme: themeId, difficulty, seed: P.seed, k, n, marks: [], elapsed: 0, done: [], hints: 0 });
+      }
+    }
+    withLoading(Gen.get(themeId, difficulty, k, n), P => {
+      if (!P) { toast('Could not make that one, try again'); return; }
+      dealNames(P, themeId);
+      start(P, { theme: themeId, difficulty, seed: P.seed, k, n, marks: [], elapsed: 0, done: [], hints: 0 });
+      Gen.keepOnly([]);
+      if (!fromBank(difficulty, k, n)) Gen.prefetch(peekTheme().find(id => id !== themeId) || themeId, difficulty, k, n); // ready for "Next puzzle"
+    });
+  }
+  function resume(saved) {
+    const kept = store.get('lp.gameP');
+    if (kept && kept.seed === saved.seed && kept.theme === saved.theme) return start(kept, saved);
+    // older save without the puzzle stored: rebuild it from its seed (Fiendish has always stored its puzzle)
+    if (saved.difficulty === 'fiendish' || saved.custom) { toast('That puzzle could not be restored'); return renderHome(); }
+    withLoading(new Promise(res => setTimeout(() => res(E.generate(TH.byId(saved.theme), { difficulty: saved.difficulty, seed: saved.seed, k: saved.k || 4, n: saved.n || 5 })), 30)), P => start(P, saved));
+  }
+  function start(P, saved) {
+    G = {
+      P, theme: saved.theme, difficulty: saved.difficulty, seed: saved.seed, k: P.k, n: P.n,
+      marks: new Map(saved.marks || []), undo: [], elapsed: saved.elapsed || 0,
+      done: new Set(saved.done || []), hints: saved.hints || 0, wrong: new Set(), solved: false, auto: new Map(saved.auto || []),
+    };
+    G.custom = saved.custom || null;
+    $('#home').classList.add('hidden'); $('#make').classList.add('hidden'); $('#stories').classList.add('hidden'); $('#play').classList.remove('hidden');
+    $('#ptitle').textContent = P.title;
+    $('#pdiff').textContent = P.review ? `${LEVEL[P.review.level || 'hard']} skeleton ${P.review.size.replace('x', '×')} #${P.review.i + 1} · ${P.clues.length} clues`
+      : `${P.k}×${P.n} · ${G.difficulty} · ${P.clues.length} clues`;
+    $('#pintro').textContent = P.intro;
+    $('#seedInfo').textContent = `Puzzle ${G.theme}-${G.k}x${G.n}-${G.difficulty}-${G.seed}`;
+    store.set('lp.gameP', P); // the whole puzzle, so Continue never has to remake it
+    renderGrid(); renderClues(); renderMarks();
+    startTimer(); save();
+    window.scrollTo(0, 0);
+  }
+  function save() {
+    if (!G) return;
+    store.set('lp.game', { v: E.GEN_VERSION, theme: G.theme, title: G.P.title, custom: G.custom, difficulty: G.difficulty, seed: G.seed, k: G.k, n: G.n, marks: [...G.marks], auto: [...G.auto], elapsed: G.elapsed, done: [...G.done], hints: G.hints, solved: G.solved });
+  }
+  function startTimer() {
+    clearInterval(timerId);
+    $('#timer').textContent = fmtTime(G.elapsed);
+    timerId = setInterval(() => {
+      if (!G || G.solved || document.hidden || $('#play').classList.contains('hidden')) return;
+      G.elapsed++; $('#timer').textContent = fmtTime(G.elapsed);
+      if (G.elapsed % 5 === 0) save();
+    }, 1000);
+  }
+
+  // ---------- grid ----------
+  function layout() {
+    const P = G.P, k = P.k;
+    const colCats = []; for (let c = 1; c < k; c++) colCats.push(c);
+    const rowCats = [0]; for (let c = k - 1; c >= 2; c--) rowCats.push(c);
+    return { colCats, rowCats };
+  }
+  const itemName = x => E.label(G.P, x);
+
+  function renderGrid() {
+    const P = G.P, n = P.n;
+    const { colCats, rowCats } = layout();
+    const grid = $('#grid'); grid.innerHTML = '';
+    cellEls = new Map(); labEls = new Map(); lineX = lineY = -1;
+    const CAT = 18;
+    const longest = Math.max(...P.cats.flatMap(c => c.items.map(i => i.name.length)));
+    const FS = { normal: 1, large: 1.15, larger: 1.3 }[settings.textSize] || 1;
+    const LAB = Math.min(96 * FS, 14 + longest * 6.6 * FS);
+    const cols = colCats.length * n, rows = rowCats.length * n;
+    const wrapW = window.innerWidth >= 900 ? Math.min(window.innerWidth * 0.5, 620) : Math.min(grid.parentElement.parentElement.clientWidth || window.innerWidth, 640);
+    const cs = Math.max(19, Math.min(34, Math.floor((wrapW - CAT - LAB - 2) / cols)));
+    grid.style.gridTemplateColumns = `${CAT}px ${LAB}px repeat(${cols}, ${cs}px)`;
+    grid.style.gridTemplateRows = `${CAT}px ${LAB}px repeat(${rows}, ${cs}px)`;
+    const put = (el, r, c, rs, cspan) => { el.style.gridRow = rs ? `${r} / span ${rs}` : r; el.style.gridColumn = cspan ? `${c} / span ${cspan}` : c; grid.appendChild(el); };
+    const addLab = (x, el) => { if (!labEls.has(x)) labEls.set(x, []); labEls.get(x).push(el); };
+    colCats.forEach((c, ci) => {
+      const cn = document.createElement('div'); cn.className = 'catname'; cn.textContent = P.cats[c].name;
+      put(cn, 1, 3 + ci * n, 0, n);
+      for (let i = 0; i < n; i++) {
+        const l = document.createElement('div'); l.className = 'lab col'; l.textContent = P.cats[c].items[i].name;
+        put(l, 2, 3 + ci * n + i); addLab(c * n + i, l);
+      }
+    });
+    rowCats.forEach((c, ri) => {
+      const cn = document.createElement('div'); cn.className = 'catname v'; cn.textContent = P.cats[c].name;
+      put(cn, 3 + ri * n, 1, n, 0);
+      for (let i = 0; i < n; i++) {
+        const l = document.createElement('div'); l.className = 'lab row'; l.textContent = P.cats[c].items[i].name;
+        put(l, 3 + ri * n + i, 2); addLab(c * n + i, l);
+      }
+    });
+    rowCats.forEach((rc, ri) => colCats.forEach((cc, ci) => {
+      if (ri !== 0 && ci >= P.k - 1 - ri) return;
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+        const x = rc * n + i, y = cc * n + j;
+        const el = document.createElement('div');
+        el.className = 'cell' + (j === 0 ? ' bl' : '') + (i === 0 ? ' bt' : '') + (j === n - 1 ? ' br' : '') + (i === n - 1 ? ' bb' : '');
+        el.dataset.x = x; el.dataset.y = y;
+        el.style.fontSize = Math.round(cs * 0.5) + 'px';
+        put(el, 3 + ri * n + i, 3 + ci * n + j);
+        cellEls.set(key(x, y), el);
+      }
+    }));
+  }
+
+  function renderMarks() {
+    for (const [k, el] of cellEls) {
+      const v = G.marks.get(k) || 0;
+      if (el._v !== v) { el.innerHTML = v === 1 ? TICK : v === -1 ? CROSS : ''; el._v = v; }
+      el.classList.toggle('yes', v === 1); el.classList.toggle('no', v === -1);
+      el.classList.toggle('wrong', G.wrong.has(k));
+    }
+  }
+
+  function setMark(x, y, v) {
+    const k = key(x, y);
+    if (v) G.marks.set(k, v); else G.marks.delete(k);
+    G.wrong.delete(k);
+  }
+  function pushUndo() { G.undo.push({ m: new Map(G.marks), a: new Map(G.auto) }); if (G.undo.length > 300) G.undo.shift(); }
+
+  // a tick crosses out the rest of its row and column; remember which crosses it added (cells that were empty),
+  // so tapping that tick away takes them back out again
+  function sweep(x, y) {
+    const n = G.P.n, cx = Math.floor(x / n), cy = Math.floor(y / n), added = [];
+    for (let z = cy * n; z < (cy + 1) * n; z++) if (z !== y && !G.marks.get(key(x, z))) { setMark(x, z, -1); added.push(key(x, z)); }
+    for (let z = cx * n; z < (cx + 1) * n; z++) if (z !== x && !G.marks.get(key(z, y))) { setMark(z, y, -1); added.push(key(z, y)); }
+    if (added.length) G.auto.set(key(x, y), (G.auto.get(key(x, y)) || []).concat(added));
+  }
+  // is this cell in the row or column of a tick that's still there?
+  function ruledOut(a, b) {
+    const n = G.P.n, ca = Math.floor(a / n), cb = Math.floor(b / n);
+    for (let z = cb * n; z < (cb + 1) * n; z++) if (z !== b && G.marks.get(key(a, z)) === 1) return true;
+    for (let z = ca * n; z < (ca + 1) * n; z++) if (z !== a && G.marks.get(key(z, b)) === 1) return true;
+    return false;
+  }
+  function unsweep(x, y) {
+    const k0 = key(x, y), added = G.auto.get(k0); G.auto.delete(k0);
+    if (!added) return;
+    for (const k of added) { const [a, b] = k.split(',').map(Number); if (G.marks.get(k) === -1 && !ruledOut(a, b)) setMark(a, b, 0); }
+  }
+
+  // crosshair: light up the row and column you're on, so you can read across to the right name
+  let lineX = -1, lineY = -1;
+  function setLine(x, y) {
+    if (x === lineX && y === lineY) return;
+    document.querySelectorAll('#grid .line, #grid .here').forEach(el => el.classList.remove('line', 'here'));
+    lineX = x; lineY = y;
+    if (x < 0) return;
+    for (const el of cellEls.values()) {
+      const cx = +el.dataset.x, cy = +el.dataset.y;
+      if (cx === x || cy === y) el.classList.add('line');
+    }
+    (labEls.get(x) || []).filter(el => el.classList.contains('row')).forEach(el => el.classList.add('line'));
+    (labEls.get(y) || []).filter(el => el.classList.contains('col')).forEach(el => el.classList.add('line'));
+    const here = cellEls.get(key(x, y)); if (here) here.classList.add('here');
+  }
+  $('#grid').addEventListener('pointerover', e => {
+    if (e.pointerType !== 'mouse') return;
+    const el = e.target.closest('.cell'); if (el) setLine(+el.dataset.x, +el.dataset.y);
+  });
+  $('#grid').addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') setLine(-1, -1); });
+  $('#grid').addEventListener('pointerdown', e => {
+    const el = e.target.closest('.cell'); if (el) setLine(+el.dataset.x, +el.dataset.y);
+  });
+  $('#grid').addEventListener('click', e => {
+    const el = e.target.closest('.cell'); if (!el || !G || G.solved) return;
+    const x = +el.dataset.x, y = +el.dataset.y;
+    const cur = G.marks.get(key(x, y)) || 0;
+    const next = cur === 0 ? -1 : cur === -1 ? 1 : 0;
+    pushUndo(); clearHintHighlights();
+    setMark(x, y, next);
+    if (next === 1 && settings.autoCross) sweep(x, y);
+    if (cur === 1) unsweep(x, y); // tapped a tick away: its automatic crosses go too
+    renderMarks(); save(); checkSolved();
+  });
+
+  // ---------- clues ----------
+  function renderClues() {
+    const ol = $('#clues'); ol.innerHTML = '';
+    for (const c of G.P.clues) {
+      const li = document.createElement('li'); li.dataset.id = c.id;
+      li.innerHTML = `<b>${c.id}</b><span>${c.text}</span>`;
+      li.classList.toggle('done', G.done.has(c.id));
+      li.onclick = () => { G.done.has(c.id) ? G.done.delete(c.id) : G.done.add(c.id); li.classList.toggle('done'); save(); };
+      ol.appendChild(li);
+    }
+  }
+
+  // ---------- check / solved ----------
+  function findWrong() {
+    const sol = G.P.solution, wrong = new Set();
+    for (const [k, v] of G.marks) {
+      const [x, y] = k.split(',').map(Number);
+      if ((sol[x] === sol[y]) !== (v === 1)) wrong.add(k);
+    }
+    return wrong;
+  }
+  $('#checkBtn').onclick = () => {
+    if (!G) return;
+    G.wrong = findWrong(); renderMarks();
+    toast(G.wrong.size ? `${G.wrong.size} mark${G.wrong.size > 1 ? 's are' : ' is'} wrong (shown in red)` : 'Everything so far is correct');
+  };
+  function checkSolved() {
+    const P = G.P;
+    if (findWrong().size) return;
+    const S = new E.State(P);
+    for (const [k, v] of G.marks) { const [x, y] = k.split(',').map(Number); S.mark(x, y, v); }
+    if (!S.solved()) return;
+    // fill in the ticks the player implied by crossing out everything else
+    for (let y = P.n; y < P.n * P.k; y++) setMark(P.solution[y], y, 1);
+    renderMarks();
+    G.solved = true; save();
+    const o = document.createElement('div'); o.className = 'overlay';
+    o.innerHTML = `<div class="card"><h3>Solved</h3><p>${P.title}, ${P.k}×${P.n} ${G.difficulty}, in ${fmtTime(G.elapsed)}${G.hints ? ` with ${G.hints} hint${G.hints > 1 ? 's' : ''}` : ', no hints'}.</p>
+      ${P.review ? `<p class="revstats">${LEVEL[P.review.level || 'hard']} skeleton ${P.review.size.replace('x', '×')} #${P.review.i + 1}: ${P.route.hard} two-clue moment${P.route.hard === 1 ? '' : 's'}, the last about ${Math.round(P.route.lastHard * 100)}% of the way through. ${P.clues.length} clues.</p>` : ''}
+      <p class="ratehead">${P.review ? 'How hard did it feel?' : 'How was it?'}</p><div class="stars">${[1, 2, 3, 4, 5].map(i => `<button data-s="${i}" aria-label="${i} star${i > 1 ? 's' : ''}">★</button>`).join('')}</div>
+      <div class="row"><button id="oHome">${P.review ? 'All skeletons' : 'Home'}</button><button class="primary" id="oNext">${P.review ? 'Next skeleton' : 'Next puzzle'}</button></div></div>`;
+    document.body.appendChild(o);
+    o.querySelectorAll('.stars button').forEach(b => b.onclick = () => {
+      const stars = +b.dataset.s, r = ratings();
+      r[P.skeleton || `${G.theme}-${G.k}x${G.n}-${G.difficulty}-${G.seed}`] = { stars, theme: G.theme, size: `${G.k}x${G.n}`, difficulty: G.difficulty, secs: G.elapsed, hints: G.hints, date: new Date().toISOString().slice(0, 10) };
+      store.set('lp.ratings', r);
+      o.querySelectorAll('.stars button').forEach(x => x.classList.toggle('on', +x.dataset.s <= stars));
+      o.querySelector('.ratehead').textContent = stars <= 2 ? (P.review ? `Saved — it’s out of the ${LEVEL[P.review.level || 'hard']} deck.` : 'Thanks — you won\'t get that one again.') : P.review ? 'Saved.' : 'Thanks!';
+    });
+    o.querySelector('#oHome').onclick = () => { o.remove(); if (P.review) { $('#play').classList.add('hidden'); renderReview(P.review.size, P.review.level); } else renderHome(); };
+    o.querySelector('#oNext').onclick = () => {
+      o.remove();
+      if (P.review) {
+        const nx = P.review.i + 1;
+        if (nx < bankOf(P.review.level, P.review.size).length) return startReview(P.review.size, nx, P.review.level);
+        $('#play').classList.add('hidden'); return renderReview(P.review.size, P.review.level);
+      }
+      if (G.custom) return makeCustom(G.custom, G.difficulty, G.k, G.n); // same words, a new puzzle
+      // same size and level, but a different scenario each time
+      newGame(dealTheme(G.theme), G.difficulty, G.k, G.n);
+    };
+  }
+
+  // ---------- hints ----------
+  function clearHintHighlights() {
+    document.querySelectorAll('.cell.target, .cell.fact').forEach(el => el.classList.remove('target', 'fact'));
+    document.querySelectorAll('.lab.hl').forEach(el => el.classList.remove('hl'));
+    document.querySelectorAll('#clues li.hint').forEach(el => el.classList.remove('hint'));
+  }
+  function closeSheet() { $('#sheet').classList.add('hidden'); clearHintHighlights(); }
+  function sheet(html) { $('#sheetCard').innerHTML = html; $('#sheet').classList.remove('hidden'); }
+
+  $('#hintBtn').onclick = () => {
+    if (!G || G.solved) return;
+    clearHintHighlights();
+    const marks = [...G.marks].map(([k, v]) => { const [x, y] = k.split(',').map(Number); return [x, y, v]; });
+    const h = E.hint(G.P, marks);
+    G.hints++; save();
+    if (h.type === 'mistake') {
+      sheet(`<h4>Something's not right</h4><p>At least one mark in your grid is wrong, so any hint from here would mislead you.</p>
+        <div class="row"><button id="hClose">Close</button><button class="primary" id="hShow">Show the wrong marks</button></div>`);
+      $('#hClose').onclick = closeSheet;
+      $('#hShow').onclick = () => { G.wrong = new Set(h.wrong.map(([x, y]) => key(x, y))); renderMarks(); closeSheet(); };
+      return;
+    }
+    if (h.type !== 'step') { sheet(`<h4>Nothing to add</h4><p>Your grid already has everything.</p><div class="row"><button id="hClose">Close</button></div>`); $('#hClose').onclick = closeSheet; return; }
+    showLevel(h, 1);
+  };
+
+  function showLevel(h, level) {
+    clearHintHighlights();
+    for (const id of h.clues) { const li = document.querySelector(`#clues li[data-id="${id}"]`); if (li) li.classList.add('hint'); }
+    for (const x of h.items) (labEls.get(x) || []).forEach(el => el.classList.add('hl'));
+    const clueChips = h.clues.length ? `<p>${h.clues.map(id => `<span class="chip">Clue ${id}</span>`).join('')}</p>` : '';
+    const usesFacts = h.rule === 'clue' || h.rule === 'combine';
+    const sec = { direct: 'l-1', sweep: 'l-1', last: 'l-1', transfer: 'l-2', compare: 'l-2', clue: 'l-2', combine: 'l-3' }[h.rule] || 'l-grid';
+    const how = `<button class="howlink" data-sec="${sec}">How does this kind of move work?</button>`;
+    let body = `<div class="lvl">Hint · step 1 of 3</div><h4>Where to look</h4>${clueChips}<p>${h.look}</p>${how}`;
+    if (level >= 2 && usesFacts) {
+      for (const f of h.factMarks) { const el = cellEls.get(key(f[0], f[1])); if (el) el.classList.add('fact'); }
+      body = `<div class="lvl">Hint · step 2 of 3</div><h4>What you need</h4>${clueChips}` + (h.facts.length
+        ? `<p>${h.clues.length > 1 ? 'Read these clues' : 'Read this clue'} together with:</p><ul>${h.facts.map(f => `<li>${f}</li>`).join('')}</ul><p style="color:var(--ink2);font-size:13px">Shaded blue in your grid.</p>`
+        : `<p>Nothing from your grid. ${h.clues.length > 1 ? 'These clues give it' : 'This clue gives it'} on ${h.clues.length > 1 ? 'their' : 'its'} own.</p>`);
+    }
+    if (level >= 3) {
+      for (const m of h.marks) { const el = cellEls.get(key(m[0], m[1])); if (el) el.classList.add('target'); }
+      body = `<div class="lvl">Hint · step 3 of 3</div><h4>So…</h4>${clueChips}` +
+        (usesFacts && h.facts.length ? `<p style="color:var(--ink2)">Using: ${h.facts.join('; ')}</p>` : '') +
+        `<ul>${h.conclusion.map(c => `<li>${c}</li>`).join('')}</ul>` +
+        (h.why && h.why.length ? `<div class="why"><b>Why?</b>${h.why.map(w => `<p>${w}</p>`).join('')}</div>` : '');
+    }
+    const nextLabel = level === 1 ? (usesFacts ? 'What do I need?' : 'Show me') : level === 2 ? 'Show me' : 'Fill these in';
+    sheet(body + `<div class="row"><button id="hClose">Close</button><button class="primary" id="hNext">${nextLabel}</button></div>`);
+    $('#hClose').onclick = closeSheet;
+    const hl = document.querySelector('#sheet .howlink'); if (hl) hl.onclick = () => { closeSheet(); openLearn(hl.dataset.sec); };
+    $('#hNext').onclick = () => {
+      if (level === 3) {
+        pushUndo();
+        for (const [x, y, v] of h.marks) { setMark(x, y, v); if (v === 1 && settings.autoCross) sweep(x, y); }
+        renderMarks(); save(); closeSheet(); checkSolved();
+      } else showLevel(h, level === 1 && !usesFacts ? 3 : level + 1);
+    };
+  }
+
+  // ---------- toolbar / menu ----------
+  $('#undoBtn').onclick = () => { if (!G || !G.undo.length || G.solved) return; const u = G.undo.pop(); G.marks = u.m; G.auto = u.a; G.wrong.clear(); renderMarks(); save(); };
+  $('#backBtn').onclick = () => { save(); closeSheet(); if (G && G.P.review) { $('#play').classList.add('hidden'); renderReview(G.P.review.size, G.P.review.level); } else renderHome(); };
+  $('#menuBtn').onclick = () => { $('#autoCross').checked = settings.autoCross; $('#menu').classList.remove('hidden'); };
+  $('#closeMenu').onclick = () => $('#menu').classList.add('hidden');
+  $('#copyRatings').onclick = () => {
+    const txt = JSON.stringify(ratings());
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Ratings copied — paste them to Claude'), () => toast('Could not copy'));
+  };
+  $('#autoCross').onchange = e => { settings.autoCross = e.target.checked; saveSettings(); };
+  $('#restartBtn').onclick = () => { $('#menu').classList.add('hidden'); pushUndo(); G.marks.clear(); G.auto.clear(); G.wrong.clear(); G.done.clear(); G.elapsed = 0; G.solved = false; renderClues(); renderMarks(); save(); };
+  $('#newBtn').onclick = () => { $('#menu').classList.add('hidden'); if (G.custom) makeCustom(G.custom, G.difficulty, G.k, G.n); else newGame(G.theme, G.difficulty, G.k, G.n); };
+  let rt, lastW = window.innerWidth; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (window.innerWidth === lastW) return; lastW = window.innerWidth; if (G && !$('#play').classList.contains('hidden')) { renderGrid(); renderMarks(); } }, 150); });
+
+  // ---------- make your own ----------
+  // The player's names and words go into one of the scenarios (its sentences and numbers stay put) or into
+  // "Your own topic". The puzzle underneath is an ordinary one (bank skeleton or generated), so it always works.
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const MK = Object.assign({ mode: 'scenario', base: 'cinema', cats: {}, names: [], scen: {},
+    topic: { title: '', entity: 'child', anchor: 'place', labels: ['', ''], words: [[], []] } }, store.get('lp.make') || {});
+  const saveMk = () => store.set('lp.make', MK);
+  const mkSize = () => settings.makeSize || settings.size;
+  const mkDiff = () => settings.makeDiff || settings.difficulty;
+  const shuffled = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  // which of the scenario's categories fill the item slots (the player can swap them when there are more)
+  function mkSlots(t, k) {
+    const f = TH.fillable(t), want = k - 2;
+    let ids = (MK.cats[t.id] || []).filter(id => f.some(c => c.id === id));
+    for (const c of f) if (ids.length < want && !ids.includes(c.id)) ids.push(c.id);
+    return { f, ids: ids.slice(0, want) };
+  }
+  const boxes = (key, vals, n, ph) => `<div class="boxes">${Array.from({ length: n }, (_, i) =>
+    `<input data-k="${key}" data-i="${i}" value="${esc(vals[i] || '')}" placeholder="${esc(ph[i % ph.length] || '')}" maxlength="24" autocomplete="off" autocapitalize="sentences">`).join('')}</div>`;
+
+  function renderMake() {
+    $('#home').classList.add('hidden'); $('#play').classList.add('hidden'); $('#review').classList.add('hidden'); $('#make').classList.remove('hidden');
+    const size = mkSize(), [k, n] = SIZES[size];
+    let diff = mkDiff(); if (diff === 'fiendish' && !bankOf('fiendish', size).length) diff = 'hard';
+    document.querySelectorAll('#makeMode button').forEach(b => { b.classList.toggle('on', b.dataset.m === MK.mode); b.onclick = () => { MK.mode = b.dataset.m; saveMk(); renderMake(); }; });
+    document.querySelectorAll('#makeSize button').forEach(b => { b.classList.toggle('on', b.dataset.s === size); b.onclick = () => { settings.makeSize = b.dataset.s; saveSettings(); renderMake(); }; });
+    document.querySelectorAll('#makeDiff button').forEach(b => {
+      b.classList.toggle('on', b.dataset.d === diff);
+      b.disabled = b.dataset.d === 'fiendish' && !bankOf('fiendish', size).length;
+      b.onclick = () => { settings.makeDiff = b.dataset.d; saveSettings(); renderMake(); };
+    });
+    const nameBox = `<div class="mk"><h4>${WORD[n].replace(/^./, c => c.toUpperCase())} names</h4><p class="sub">Leave a box empty and it gets a name from the usual list.</p>${boxes('names', MK.names, n, ['name'])}</div>`;
+    let html = '';
+    if (MK.mode === 'scenario') {
+      const t = TH.byId(MK.base) || TH.THEMES[0]; MK.base = t.id;
+      const { f, ids } = mkSlots(t, k), a = t.anchor, vals = a.values(n, () => 0.5);
+      html += `<div class="mk"><h4>Scenario</h4><select id="mkBase">${TH.THEMES.slice().sort((x, y) => x.title.replace(/^The /, '').localeCompare(y.title.replace(/^The /, ''))).map(x => `<option value="${x.id}" ${x.id === t.id ? 'selected' : ''}>${esc(x.title)}</option>`).join('')}</select>
+        <p class="say">${esc(t.intro(n))}</p><p class="say">${esc(a.name)}: ${esc(a.fmt(vals[0]))} to ${esc(a.fmt(vals[n - 1]))} — these stay as they are.</p></div>` + nameBox;
+      ids.forEach((id, j) => {
+        const c = f.find(x => x.id === id), mine = ((MK.scen[t.id] || {})[id]) || [];
+        html += `<div class="mk" data-slot="${j}"><h4>${esc(c.label.replace(/^./, ch => ch.toUpperCase()))}</h4>` +
+          (f.length > ids.length ? `<select class="mkCat" data-j="${j}">${f.filter(x => x.id === id || !ids.includes(x.id)).map(x => `<option value="${x.id}" ${x.id === id ? 'selected' : ''}>${esc(x.label)}</option>`).join('')}</select>` : '') +
+          `<p class="sub">Empty boxes are filled from the scenario's usual list.</p>${boxes('w' + j, mine, n, c.examples)}<p class="say" id="say${j}"></p></div>`;
+      });
+    } else {
+      const T = MK.topic, A = TH.TOPIC_ANCHORS;
+      html += `<div class="mk"><h4>Your own topic</h4><label class="f">Title</label><input id="mkTitle" value="${esc(T.title)}" placeholder="Red Group's puzzle" maxlength="40">
+        <label class="f">They are</label><select id="mkEnt">${Object.keys(TH.ENTITIES).map(e => `<option value="${e}" ${e === T.entity ? 'selected' : ''}>${TH.ENTITIES[e]}</option>`).join('')}</select>
+        <label class="f">Numbers</label><select id="mkAnc">${Object.keys(A).map(id => `<option value="${id}" ${id === T.anchor ? 'selected' : ''}>${A[id].name} (${A[id].fmt(A[id].values(n)[0])} to ${A[id].fmt(A[id].values(n)[n - 1])})</option>`).join('')}</select>
+        <p class="say" id="sayIntro"></p></div>` + nameBox;
+      for (let j = 0; j < k - 2; j++) {
+        html += `<div class="mk" data-slot="${j}"><h4>Category ${j + 1}</h4><label class="f">What is it?</label><input class="mkLab" data-j="${j}" value="${esc(T.labels[j] || '')}" placeholder="${['favourite animal', 'spelling word'][j]}" maxlength="24">
+          <label class="f">${WORD[n].replace(/^./, c => c.toUpperCase())} words</label>${boxes('w' + j, T.words[j] || [], n, [['a lion', 'a zebra', 'an otter', 'a penguin', 'a hedgehog', 'a tiger'], ['rhythm', 'because', 'island', 'weird', 'necessary', 'busy']][j])}<p class="say" id="say${j}"></p></div>`;
+      }
+    }
+    $('#makeForm').innerHTML = html; $('#makeMsg').innerHTML = '';
+    // keep what they type, and show how it will read
+    $('#makeForm').oninput = e => {
+      const el = e.target;
+      if (el.dataset.k === 'names') MK.names[+el.dataset.i] = el.value;
+      else if (el.dataset.k) {
+        const j = +el.dataset.k.slice(1);
+        if (MK.mode === 'scenario') { const id = mkSlots(TH.byId(MK.base), k).ids[j]; MK.scen[MK.base] = MK.scen[MK.base] || {}; (MK.scen[MK.base][id] = MK.scen[MK.base][id] || [])[+el.dataset.i] = el.value; }
+        else (MK.topic.words[j] = MK.topic.words[j] || [])[+el.dataset.i] = el.value;
+      }
+      else if (el.id === 'mkTitle') MK.topic.title = el.value;
+      else if (el.classList.contains('mkLab')) MK.topic.labels[+el.dataset.j] = el.value;
+      $('#makeMsg').innerHTML = ''; saveMk(); preview();
+    };
+    $('#makeForm').onchange = e => {
+      const el = e.target;
+      if (el.id === 'mkBase') { MK.base = el.value; saveMk(); return renderMake(); }
+      if (el.classList.contains('mkCat')) { const ids = mkSlots(TH.byId(MK.base), k).ids; ids[+el.dataset.j] = el.value; MK.cats[MK.base] = ids; saveMk(); return renderMake(); }
+      if (el.id === 'mkEnt') MK.topic.entity = el.value;
+      if (el.id === 'mkAnc') MK.topic.anchor = el.value;
+      saveMk(); preview();
+    };
+    preview();
+  }
+  // one example sentence per category, using the first name and word they've typed
+  function preview() {
+    const [k, n] = SIZES[mkSize()];
+    const first = (a, d) => (a || []).slice(0, n).map(x => (x || '').trim()).find(Boolean) || d;
+    const nm = first(MK.names, 'Amy');
+    if (MK.mode === 'scenario') {
+      const t = TH.byId(MK.base), { f, ids } = mkSlots(t, k);
+      ids.forEach((id, j) => {
+        const c = f.find(x => x.id === id), w = first((MK.scen[t.id] || {})[id], c.examples[0].toLowerCase());
+        const el = $('#say' + j); if (el) el.innerHTML = `Reads like: <b>${esc(nm)} ${esc(TH.fillIn(c.who, w))}.</b>`;
+      });
+    } else {
+      const T = MK.topic, ent = T.entity;
+      $('#sayIntro').textContent = `${WORD[n].replace(/^./, c => c.toUpperCase())} ${TH.ENTITIES[ent]} each ${TH.TOPIC_ANCHORS[T.anchor].intro(n)}.`;
+      for (let j = 0; j < k - 2; j++) {
+        const L = (T.labels[j] || '').trim().toLowerCase() || ['favourite animal', 'spelling word'][j], w = first(T.words[j], ['a lion', 'rhythm'][j]);
+        const el = $('#say' + j); if (el) el.innerHTML = `Reads like: <b>${esc(nm)}'s ${esc(L)} is ${esc(w)}.</b> · <b>The ${esc(ent)} whose ${esc(L)} is ${esc(w)}…</b>`;
+      }
+    }
+  }
+  $('#makeBack').onclick = () => renderHome();
+  $('#makeGo').onclick = () => {
+    const size = mkSize(), [k, n] = SIZES[size];
+    let diff = mkDiff(); if (diff === 'fiendish' && !bankOf('fiendish', size).length) diff = 'hard';
+    const names = shuffled(TH.NAMES);
+    let spec, fill;
+    if (MK.mode === 'scenario') {
+      const t = TH.byId(MK.base), { f, ids } = mkSlots(t, k);
+      spec = { base: t.id, cats: ids, names: (MK.names || []).slice(0, n), words: ids.map(id => (((MK.scen[t.id] || {})[id]) || []).slice(0, n)) };
+      fill = { names, labels: ids.map(id => f.find(c => c.id === id).label + 's'), words: ids.map(id => f.find(c => c.id === id).examples) }; // the same words the empty boxes show
+    } else {
+      const T = MK.topic;
+      spec = { topic: true, title: T.title, entity: T.entity, anchor: T.anchor, labels: T.labels.slice(0, k - 2), names: (MK.names || []).slice(0, n), words: Array.from({ length: k - 2 }, (_, j) => (T.words[j] || []).slice(0, n)) };
+      while (spec.labels.length < k - 2) spec.labels.push('');
+      fill = { names };
+    }
+    const chk = TH.checkWords(spec, n, fill);
+    if (chk.problems.length) { $('#makeMsg').innerHTML = chk.problems.map(p => `<p class="bad">${esc(p)}</p>`).join(''); $('#makeMsg').scrollIntoView({ block: 'center' }); return; }
+    spec.names = chk.names; spec.words = chk.words;
+    if (chk.warnings.length) toast(chk.warnings[0]);
+    makeCustom(spec, diff, k, n);
+  };
+  function makeCustom(spec, difficulty, k, n) {
+    const theme = TH.custom(spec), size = k + 'x' + n;
+    const go = P => {
+      if (!P) { toast('Could not make that one, try again'); return; }
+      start(P, { theme: 'custom', custom: spec, difficulty, seed: P.seed, k, n, marks: [], elapsed: 0, done: [], hints: 0 });
+    };
+    if (fromBank(difficulty, k, n)) {
+      const d = dealSkeleton(size, difficulty);
+      if (d) return go(E.reskin(theme, d.sk, { id: d.id, difficulty }));
+    }
+    withLoading(new Promise(res => setTimeout(() => {
+      let P = null;
+      for (let tries = 0; tries < 8 && !P; tries++) P = E.generate(theme, { difficulty, k, n, seed: Math.floor(Math.random() * 2 ** 31) });
+      res(P);
+    }, 30)), go);
+  }
+
+  // ---------- share / print ----------
+  // One A4 page drawn as SVG: printed (or saved as PDF) through the browser, or turned into a picture
+  // and handed to the phone's share sheet (WhatsApp, email…). Optional second page with the answers.
+  const PW = 1240, PH = 1754, PM = 90;
+  const SANS = 'Segoe UI, Roboto, Helvetica, Arial, sans-serif', SERIF = 'Georgia, Palatino, serif';
+  const mctx = document.createElement('canvas').getContext('2d');
+  const measure = (t, px, font) => { mctx.font = `${px}px ${font || SANS}`; return mctx.measureText(t).width; };
+  function wrap(text, px, width, font) {
+    const out = []; let line = '';
+    for (const w of String(text).split(' ')) {
+      const tryL = line ? line + ' ' + w : w;
+      if (line && measure(tryL, px, font) > width) { out.push(line); line = w; } else line = tryL;
+    }
+    if (line) out.push(line);
+    return out;
+  }
+  const T = (x, y, txt, px, o) => `<text x="${x}" y="${y}" font-size="${px}" font-family="${(o && o.font) || SANS}"${o && o.anchor ? ` text-anchor="${o.anchor}"` : ''}${o && o.weight ? ` font-weight="${o.weight}"` : ''} fill="${(o && o.fill) || '#1d2a3a'}"${o && o.rot ? ` transform="rotate(-90 ${x} ${y})"` : ''}>${esc(txt)}</text>`;
+  function pageFrame(body, foot) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${PW}" height="${PH}" viewBox="0 0 ${PW} ${PH}"><rect width="${PW}" height="${PH}" fill="#fff"/>${body}` +
+      T(PW / 2, PH - 50, foot, 20, { anchor: 'middle', fill: '#8b8f96' }) + '</svg>';
+  }
+  function puzzlePage(P, level) {
+    const n = P.n, k = P.k, W = PW - 2 * PM;
+    let y = PM + 50, b = '';
+    b += T(PM, y, P.title, 58, { font: SERIF });
+    y += 26;
+    for (const l of wrap(P.intro, 28, W)) { y += 38; b += T(PM, y, l, 28, { fill: '#4a5566' }); }
+    y += 40;
+    // grid: same staircase as the app
+    const colCats = []; for (let c = 1; c < k; c++) colCats.push(c);
+    const rowCats = [0]; for (let c = k - 1; c >= 2; c--) rowCats.push(c);
+    const LPX = 24, CAT = 34;
+    const lab = Math.ceil(Math.max(...P.cats.flatMap(c => c.items.map(i => measure(i.name, LPX))))) + 18;
+    const cols = colCats.length * n, rows = rowCats.length * n;
+    const cs = Math.floor(Math.min(64, (W - CAT - lab) / cols, (PH * 0.5 - CAT - lab) / rows));
+    const gw = CAT + lab + cols * cs, gx = PM + Math.max(0, (W - gw) / 2), gy = y;
+    const x0 = gx + CAT + lab, y0 = gy + CAT + lab;
+    colCats.forEach((c, ci) => {
+      b += T(x0 + ci * n * cs + n * cs / 2, gy + 24, P.cats[c].name.toUpperCase(), 18, { anchor: 'middle', weight: 700, fill: '#4a5566' });
+      P.cats[c].items.forEach((it, i) => { const x = x0 + (ci * n + i) * cs + cs / 2 + 8; b += T(x, y0 - 10, it.name, LPX, { rot: true }); });
+    });
+    rowCats.forEach((c, ri) => {
+      const cy = y0 + ri * n * cs + n * cs / 2;
+      b += T(gx + 24, cy, P.cats[c].name.toUpperCase(), 18, { anchor: 'middle', weight: 700, fill: '#4a5566', rot: true });
+      P.cats[c].items.forEach((it, i) => { b += T(x0 - 10, y0 + (ri * n + i) * cs + cs / 2 + 8, it.name, LPX, { anchor: 'end' }); });
+    });
+    rowCats.forEach((rc, ri) => colCats.forEach((cc, ci) => {
+      if (ri !== 0 && ci >= k - 1 - ri) return;
+      const bx = x0 + ci * n * cs, by = y0 + ri * n * cs;
+      for (let i = 1; i < n; i++) {
+        b += `<line x1="${bx}" y1="${by + i * cs}" x2="${bx + n * cs}" y2="${by + i * cs}" stroke="#a39780" stroke-width="1.5"/>`;
+        b += `<line x1="${bx + i * cs}" y1="${by}" x2="${bx + i * cs}" y2="${by + n * cs}" stroke="#a39780" stroke-width="1.5"/>`;
+      }
+      b += `<rect x="${bx}" y="${by}" width="${n * cs}" height="${n * cs}" fill="none" stroke="#1d2a3a" stroke-width="3"/>`;
+    }));
+    y = y0 + rows * cs + 56;
+    // clues: largest type that fits what's left of the page
+    const left = PH - 110 - y;
+    let px = 28, lines;
+    for (; px >= 16; px -= 1) {
+      lines = []; P.clues.forEach(c => wrap(c.text, px, W - 50).forEach((l, i) => lines.push([i ? '' : c.id + '.', l])));
+      if (lines.length * px * 1.4 + P.clues.length * px * 0.35 <= left) break;
+    }
+    b += T(PM, y, 'CLUES', 18, { weight: 700, fill: '#4a5566' }); y += 10;
+    let last = null;
+    for (const [num, l] of lines) {
+      if (num) y += px * 0.35;
+      y += px * 1.4;
+      if (num) b += T(PM, y, num, px, { font: SERIF, fill: '#4a5566' });
+      b += T(PM + 50, y, l, px);
+    }
+    return pageFrame(b, `Logic Puzzles · ${k}×${n} · ${LEVEL[level] || level}`);
+  }
+  function answerPage(P, level) {
+    const n = P.n, W = PW - 2 * PM;
+    let y = PM + 50, b = T(PM, y, 'Answers: ' + P.title, 50, { font: SERIF });
+    y += 70;
+    const order = [0].concat(P.cats.map((c, i) => i).filter(i => i && P.cats[i].person), P.cats.map((c, i) => i).filter(i => i && !P.cats[i].person));
+    const colW = W / order.length, rowH = 64;
+    order.forEach((c, j) => { b += T(PM + j * colW + 12, y, P.cats[c].name.toUpperCase(), 20, { weight: 700, fill: '#4a5566' }); });
+    y += 18;
+    for (let g = 0; g < n; g++) {
+      b += `<line x1="${PM}" y1="${y}" x2="${PM + W}" y2="${y}" stroke="#a39780" stroke-width="1.5"/>`;
+      order.forEach((c, j) => {
+        let i = 0; while (i < n && P.solution[c * n + i] !== g) i++;
+        const name = P.cats[c].items[i] ? P.cats[c].items[i].name : '';
+        let px = 30; while (px > 16 && measure(name, px) > colW - 20) px--;
+        b += T(PM + j * colW + 12, y + 42, name, px, { weight: j === 1 ? 700 : 400 });
+      });
+      y += rowH;
+    }
+    b += `<line x1="${PM}" y1="${y}" x2="${PM + W}" y2="${y}" stroke="#a39780" stroke-width="1.5"/>`;
+    return pageFrame(b, `Logic Puzzles · ${P.k}×${P.n} · ${LEVEL[level] || level} · answers`);
+  }
+  const pages = (withAnswers) => [puzzlePage(G.P, G.difficulty)].concat(withAnswers ? [answerPage(G.P, G.difficulty)] : []);
+  const fileBase = () => (G.P.title.replace(/[^\w ]+/g, '').trim().replace(/\s+/g, '-') || 'puzzle').toLowerCase();
+  function svgToPng(svg) {
+    return new Promise((res, rej) => {
+      const img = new Image();
+      img.onload = () => { const c = document.createElement('canvas'); c.width = PW; c.height = PH; c.getContext('2d').drawImage(img, 0, 0); c.toBlob(b => b ? res(b) : rej(), 'image/png'); };
+      img.onerror = rej;
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    });
+  }
+  function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }
+  async function sharePictures(withAnswers) {
+    const svgs = pages(withAnswers), base = fileBase();
+    const files = [];
+    for (let i = 0; i < svgs.length; i++) files.push(new File([await svgToPng(svgs[i])], `${base}${i ? '-answers' : ''}.png`, { type: 'image/png' }));
+    if (navigator.canShare && navigator.canShare({ files })) {
+      try { await navigator.share({ files, title: G.P.title }); } catch (e) { if (e && e.name !== 'AbortError') toast('Could not open sharing'); }
+    } else { files.forEach(f => download(f, f.name)); toast(files.length > 1 ? 'Pictures saved to your downloads' : 'Picture saved to your downloads'); }
+  }
+  function printPages(withAnswers) {
+    const area = $('#printArea'); area.innerHTML = pages(withAnswers).join('');
+    const done = () => { area.innerHTML = ''; window.removeEventListener('afterprint', done); };
+    window.addEventListener('afterprint', done);
+    setTimeout(() => window.print(), 50);
+  }
+  $('#shareBtn').onclick = () => {
+    $('#menu').classList.add('hidden');
+    const canShare = !!(navigator.canShare && navigator.canShare({ files: [new File([''], 'x.png', { type: 'image/png' })] }));
+    sheet(`<h4>Share or print</h4><p>A clean A4 page: the grid and the clues, with no marks.</p>
+      <label style="display:flex;gap:10px;align-items:center;padding:6px 0"><input type="checkbox" id="shAns" ${settings.shareAnswers ? 'checked' : ''}> Add a page with the answers</label>
+      <button class="sharebtn primary" id="shPic">${canShare ? 'Send as a picture' : 'Save as a picture'}<small>${canShare ? 'Opens your share options: WhatsApp, Messages, email…' : 'Saves a PNG to your downloads'}</small></button>
+      <button class="sharebtn" id="shPrint">Print or save as PDF<small>Choose “Save as PDF” as the printer to get a file</small></button>
+      <div class="row"><button id="hClose">Close</button></div>`);
+    $('#shAns').onchange = e => { settings.shareAnswers = e.target.checked; saveSettings(); };
+    $('#hClose').onclick = closeSheet;
+    $('#shPic').onclick = () => { closeSheet(); sharePictures(!!settings.shareAnswers); };
+    $('#shPrint').onclick = () => { closeSheet(); printPages(!!settings.shareAnswers); };
+  };
+
+  // ---------- how to solve ----------
+  let learnFrom = null;
+  function openLearn(sec) {
+    learnFrom = !$('#play').classList.contains('hidden') ? 'play' : 'home';
+    ['#home', '#play', '#make', '#review'].forEach(id => $(id).classList.add('hidden'));
+    $('#learn').classList.remove('hidden');
+    const el = sec && document.getElementById(sec);
+    if (el) el.scrollIntoView(); else window.scrollTo(0, 0);
+  }
+  $('#learnBtn').onclick = () => openLearn();
+  $('#learnBack').onclick = () => { $('#learn').classList.add('hidden'); if (learnFrom === 'play' && G) { $('#play').classList.remove('hidden'); window.scrollTo(0, 0); } else renderHome(); };
+  document.querySelectorAll('.lnav a').forEach(a => a.onclick = e => { e.preventDefault(); document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' }); });
+
+  // ---------- pick a story ----------
+  function renderStories() {
+    const [k, n] = sizeOf();
+    ['#home', '#play', '#make', '#review', '#learn'].forEach(id => $(id).classList.add('hidden'));
+    $('#stories').classList.remove('hidden'); window.scrollTo(0, 0);
+    $('#storiesSub').textContent = `${k}×${n} · ${LEVEL[settings.difficulty]} · change these on the home screen`;
+    const az = TH.THEMES.slice().sort((a, b) => a.title.replace(/^The /, '').localeCompare(b.title.replace(/^The /, '')));
+    $('#storyList').innerHTML = az.map(t => `<button data-id="${t.id}"><b>${esc(t.title)}</b><span>${esc(t.intro(n))}</span></button>`).join('');
+    $('#storyList').querySelectorAll('button').forEach(b => b.onclick = () => newGame(b.dataset.id, settings.difficulty, k, n));
+  }
+  $('#storiesBack').onclick = () => renderHome();
+
+  // ---------- look: style and text size ----------
+  const STYLES = { paper: ['Paper', 'Warm and bookish'], clean: ['Clean', 'Plain white, all sans'], night: ['Night', 'Dark, easy on the eyes'], contrast: ['High contrast', 'Black on white, bold'] };
+  const SWATCH = { paper: ['#f4efe4', '#1d2a3a'], clean: ['#ffffff', '#16202b'], night: ['#121820', '#ebe7df'], contrast: ['#ffffff', '#000000'] };
+  function applyLook() {
+    document.documentElement.dataset.style = settings.style || 'paper';
+    document.documentElement.dataset.text = settings.textSize || 'normal';
+    const tc = SWATCH[settings.style || 'paper'][0];
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.content = tc);
+    if (G && !$('#play').classList.contains('hidden')) { renderGrid(); renderMarks(); }
+  }
+  function openLook() {
+    $('#menu').classList.add('hidden');
+    const st = settings.style || 'paper', tx = settings.textSize || 'normal';
+    sheet(`<h4>Look and text size</h4><div class="setlabel">Style</div><div class="styles">${Object.keys(STYLES).map(id => `<button data-st="${id}" class="${id === st ? 'on' : ''}" style="background:${SWATCH[id][0]};color:${SWATCH[id][1]};border-color:${SWATCH[id][1]}">${STYLES[id][0]}<small>${STYLES[id][1]}</small></button>`).join('')}</div>
+      <div class="setlabel">Text size</div><div class="seg" id="txSeg">${[['normal', 'Normal'], ['large', 'Large'], ['larger', 'Larger']].map(([v, l]) => `<button data-t="${v}" class="${v === tx ? 'on' : ''}">${l}</button>`).join('')}</div>
+      <label class="tog">Auto-cross when you tick <input type="checkbox" id="autoCross2" ${settings.autoCross ? 'checked' : ''}></label>
+      <p style="color:var(--ink2);font-size:13px">Printed and shared puzzles always come out plain black on white.</p>
+      <div class="row"><button id="hClose">Done</button></div>`);
+    document.querySelectorAll('.styles button').forEach(b => b.onclick = () => { settings.style = b.dataset.st; saveSettings(); applyLook(); openLook(); });
+    document.querySelectorAll('#txSeg button').forEach(b => b.onclick = () => { settings.textSize = b.dataset.t; saveSettings(); applyLook(); openLook(); });
+    $('#autoCross2').onchange = e => { settings.autoCross = e.target.checked; saveSettings(); };
+    $('#hClose').onclick = closeSheet;
+  }
+  $('#setBtn').onclick = openLook;
+  $('#lookBtn').onclick = openLook;
+  applyLook();
+
+  renderHome();
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => { });
+})();
+</script>
+</body>
+</html>
