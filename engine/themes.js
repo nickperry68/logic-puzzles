@@ -822,6 +822,12 @@ function LPThemesFactory(root) {
         subj: i => `the child with the ${lc(i.name)} cake`,
         items: list(['Dinosaur', 'Castle', 'Unicorn', 'Rocket', 'Pirate ship', 'Football', 'Train', 'Butterfly', 'Racing car', 'Dragon']) },
     ],
+    bigCats: [
+      { id: 'game', name: 'Party game', noun: 'party game',
+        who: i => `played ${i.say || lc(i.name)}`, neg: i => `didn't play ${i.say || lc(i.name)}`,
+        subj: i => `the child who played ${i.say || lc(i.name)}`,
+        items: list(['Pass the parcel', 'Musical chairs', 'Musical statues', 'Sleeping lions', 'Hide and seek', 'Duck duck goose', 'Sardines', 'Limbo', { name: 'Simon says', say: 'Simon says' }, { name: 'Pin the tail', say: 'pin the tail on the donkey' }]) },
+    ],
   };
 
   const gala = {
@@ -846,6 +852,12 @@ function LPThemesFactory(root) {
         who: i => `wore the ${lc(i.name)} cap`, neg: i => `didn't wear the ${lc(i.name)} cap`,
         subj: i => `the swimmer in the ${lc(i.name)} cap`,
         items: list(['Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Pink', 'Purple', 'White', 'Black', 'Silver']) },
+    ],
+    bigCats: [
+      { id: 'treat', name: 'Treat after', noun: 'treat afterwards',
+        who: i => `ate ${i.say || lc(i.name)} afterwards`, neg: i => `didn't eat ${i.say || lc(i.name)} afterwards`,
+        subj: i => `the swimmer who ate ${i.say || lc(i.name)}`,
+        items: list([{ name: 'Banana', say: 'a banana' }, { name: 'Flapjack', say: 'a flapjack' }, { name: 'Cereal bar', say: 'a cereal bar' }, { name: 'Apple', say: 'an apple' }, { name: 'Crisps', say: 'crisps' }, { name: 'Jam doughnut', say: 'a jam doughnut' }, { name: 'Cheese sandwich', say: 'a cheese sandwich' }, { name: 'Chips', say: 'chips' }, { name: 'Muffin', say: 'a muffin' }, { name: 'Toast', say: 'a slice of toast' }]) },
     ],
   };
 
@@ -875,6 +887,12 @@ function LPThemesFactory(root) {
         subj: i => `the rider on the ${i.say || lc(i.name)}`,
         items: list(['Racing bike', 'Mountain bike', 'Folding bike', 'Penny-farthing', 'Recumbent bike', 'Cargo bike', 'Tricycle', { name: 'BMX', say: 'BMX' }]) },
     ],
+    bigCats: [
+      { id: 'jersey', name: 'Jersey', noun: 'jersey colour',
+        who: i => `wore a ${i.say || lc(i.name)} jersey`, neg: i => `didn't wear a ${i.say || lc(i.name)} jersey`,
+        subj: i => `the rider in the ${i.say || lc(i.name)} jersey`,
+        items: list(['Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Pink', 'Purple', 'Black', 'White', 'Grey']) },
+    ],
   };
 
   const icecream = {
@@ -902,6 +920,12 @@ function LPThemesFactory(root) {
           { name: 'Wafer', say: 'a wafer' }, { name: 'Marshmallows', say: 'marshmallows' }, { name: 'Crushed nuts', say: 'crushed nuts' },
           { name: 'Fudge pieces', say: 'fudge pieces' }, { name: 'Honeycomb', say: 'honeycomb' }, { name: 'Chocolate stick', say: 'a chocolate stick' },
           { name: 'Hundreds and thousands', say: 'hundreds and thousands' }]) },
+    ],
+    bigCats: [
+      { id: 'ateit', name: 'Ate it', noun: 'place they ate it',
+        who: i => `ate it ${i.say || lc(i.name)}`, neg: i => `didn't eat it ${i.say || lc(i.name)}`,
+        subj: i => `the customer who ate it ${i.say || lc(i.name)}`,
+        items: list([{ name: 'Beach', say: 'on the beach' }, { name: 'Bench', say: 'on a bench' }, { name: 'Sea wall', say: 'on the sea wall' }, { name: 'Pier', say: 'by the pier' }, { name: 'Car', say: 'in the car' }, { name: 'Promenade', say: 'on the promenade' }, { name: 'Boating lake', say: 'by the boating lake' }, { name: 'Parasol', say: 'under a parasol' }]) },
     ],
   };
 
@@ -931,6 +955,12 @@ function LPThemesFactory(root) {
         subj: i => `the friend who served ${i.say || lc(i.name)}`,
         items: list(['Tiramisu', 'Ice cream', 'Brownies', 'Cheesecake', 'Panna cotta', 'Apple pie', { name: 'Eton mess', say: 'Eton mess' }, 'Lemon sorbet', 'Profiteroles', 'Banoffee pie']) },
     ],
+    bigCats: [
+      { id: 'film', name: 'Film', noun: 'film',
+        who: i => `watched a ${i.say || lc(i.name)}`, neg: i => `didn't watch a ${i.say || lc(i.name)}`,
+        subj: i => `the friend who watched a ${i.say || lc(i.name)}`,
+        items: list(['Comedy', 'Thriller', 'Musical', 'Western', { name: 'Horror', say: 'horror film' }, 'Romcom', 'Documentary', 'Cartoon', { name: 'Sci-fi', say: 'sci-fi film' }, 'Mystery']) },
+    ],
   };
 
   const escape = {
@@ -955,6 +985,12 @@ function LPThemesFactory(root) {
         who: i => `led the ${i.name}`, neg: i => `didn't lead the ${i.name}`,
         subj: i => `the captain of the ${i.name}`,
         items: list(['Codebreakers', 'Lockpicks', 'Puzzlers', 'Detectives', 'Sleuths', 'Keyholders', 'Riddle Squad', 'Night Owls', 'Clue Hunters', 'Brainboxes']) },
+    ],
+    bigCats: [
+      { id: 'final', name: 'Final puzzle', noun: 'final puzzle',
+        who: i => `finished on the ${i.say || lc(i.name)}`, neg: i => `didn't finish on the ${i.say || lc(i.name)}`,
+        subj: i => `the captain who finished on the ${i.say || lc(i.name)}`,
+        items: list(['Padlock', 'Cipher wheel', 'Jigsaw', { name: 'Morse code', say: 'Morse code' }, 'Secret message', 'Map puzzle', 'Mirror puzzle', 'Safe', 'Riddle', 'Sliding puzzle']) },
     ],
   };
 
@@ -985,6 +1021,12 @@ function LPThemesFactory(root) {
         subj: i => `the captain who aced the ${lc(i.name)} round`,
         items: list(['Music', 'Sport', 'History', 'Geography', 'Science', 'Film', 'Picture', 'Food and drink', 'Nature', 'Spelling']) },
     ],
+    bigCats: [
+      { id: 'drink', name: 'Drink', noun: 'drink',
+        who: i => `drank ${i.say || lc(i.name)}`, neg: i => `didn't drink ${i.say || lc(i.name)}`,
+        subj: i => `the captain who drank ${i.say || lc(i.name)}`,
+        items: list(['Bitter', 'Lager', 'Cider', 'Red wine', 'White wine', 'Gin and tonic', 'Shandy', 'Lemonade', 'Orange juice', 'Tonic water']) },
+    ],
   };
 
   const knitting = {
@@ -1009,6 +1051,12 @@ function LPThemesFactory(root) {
         who: i => `chose ${lc(i.name)} wool`, neg: i => `didn't choose ${lc(i.name)} wool`,
         subj: i => `the knitter who chose ${lc(i.name)} wool`,
         items: list(['Mustard', 'Teal', 'Cream', 'Rust', 'Navy', 'Plum', 'Cherry red', 'Charcoal', 'Duck-egg blue', 'Bottle green']) },
+    ],
+    bigCats: [
+      { id: 'stitch', name: 'Stitch', noun: 'stitch',
+        who: i => `worked in ${i.say || lc(i.name)}`, neg: i => `didn't work in ${i.say || lc(i.name)}`,
+        subj: i => `the knitter who worked in ${i.say || lc(i.name)}`,
+        items: list(['Cable stitch', 'Moss stitch', 'Rib', 'Garter stitch', 'Stocking stitch', { name: 'Fair Isle', say: 'Fair Isle' }, 'Lace', 'Honeycomb stitch', 'Basketweave']) },
     ],
   };
 
@@ -1039,6 +1087,12 @@ function LPThemesFactory(root) {
           { name: 'Model village', say: 'the model village' }, { name: 'Crazy golf', say: 'the crazy golf' }, { name: 'Bandstand', say: 'the bandstand' },
           { name: 'Art gallery', say: 'the art gallery' }]) },
     ],
+    bigCats: [
+      { id: 'room', name: 'Room', noun: 'room',
+        who: i => `had the ${i.say || lc(i.name)} room`, neg: i => `didn't have the ${i.say || lc(i.name)} room`,
+        subj: i => `the guest in the ${i.say || lc(i.name)} room`,
+        items: list([{ name: 'Sea view', say: 'sea-view' }, { name: 'Garden view', say: 'garden-view' }, { name: 'Harbour view', say: 'harbour-view' }, 'Balcony', 'Attic', 'Four-poster', 'Family', 'Corner', 'Courtyard', 'Turret']) },
+    ],
   };
 
   const airport = {
@@ -1064,6 +1118,12 @@ function LPThemesFactory(root) {
         subj: i => `the passenger who bought ${i.say || an(i.name)}`,
         items: list(['Neck pillow', 'Paperback', { name: 'Sunglasses', say: 'sunglasses' }, 'Travel adaptor', 'Magazine', { name: 'Perfume', say: 'perfume' },
           'Phone charger', 'Box of fudge', 'Sun hat', 'Crossword book']) },
+    ],
+    bigCats: [
+      { id: 'packed', name: 'Packed', noun: 'thing they packed',
+        who: i => `packed ${i.say || lc(i.name)}`, neg: i => `didn't pack ${i.say || lc(i.name)}`,
+        subj: i => `the passenger who packed ${i.say || lc(i.name)}`,
+        items: list([{ name: 'Swimming costume', say: 'a swimming costume' }, { name: 'Walking boots', say: 'walking boots' }, { name: 'Guidebook', say: 'a guidebook' }, { name: 'Camera', say: 'a camera' }, { name: 'Snorkel', say: 'a snorkel' }, { name: 'Umbrella', say: 'an umbrella' }, { name: 'Sketchbook', say: 'a sketchbook' }, { name: 'Binoculars', say: 'binoculars' }, { name: 'Tennis racket', say: 'a tennis racket' }, { name: 'Raincoat', say: 'a raincoat' }]) },
     ],
   };
 
