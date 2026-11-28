@@ -187,6 +187,23 @@
   #learn p, #learn li { margin: 6px 0; }
   #learn ul { padding-left: 20px; }
   .lsub { color: var(--ink2); font-size: 14px; }
+  .lrule { margin: 8px 0; padding: 10px 12px; border: 1.5px solid var(--ink); background: var(--marker); border-radius: 8px; }
+  #learn ol { padding-left: 22px; }
+  .lnav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .lnav::-webkit-scrollbar { display: none; } .lnav a { flex: 1 0 auto; white-space: nowrap; padding: 7px 10px; font-size: 13px; }
+  .lver { margin: 6px 0 4px; } .lver button { padding: 7px 0; font-size: 14px; }
+  .lgroups { list-style: none; padding: 0; } .lgroups li { margin: 3px 0; }
+  .lex { margin: 4px 0 12px; } .lex .mg { margin: 6px auto 0; }
+  .mg { display: grid; width: max-content; max-width: 100%; overflow-x: auto; }
+  .mg .cn { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .mg .cn.v { writing-mode: vertical-rl; transform: rotate(180deg); }
+  .mg .l { font-size: 11px; display: flex; align-items: center; white-space: nowrap; overflow: hidden; padding: 0 4px; color: var(--ink); }
+  .mg .l.col { writing-mode: vertical-rl; transform: rotate(180deg); padding: 4px 0; justify-content: flex-start; }
+  .mg .l.row { justify-content: flex-end; }
+  .mg .l.col.up { writing-mode: horizontal-tb; transform: none; justify-content: center; align-items: flex-end; padding: 0; }
+  .mg .c { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--card); display: grid; place-items: center; }
+  .mg .c.bl { border-left: 2px solid var(--ink); } .mg .c.bt { border-top: 2px solid var(--ink); } .mg .c.br { border-right: 2px solid var(--ink); } .mg .c.bb { border-bottom: 2px solid var(--ink); }
+  .mg .c svg { width: 82%; height: 82%; display: block; } .mg .c.no { color: var(--xmark); } .mg .c.no svg { width: 60%; height: 60%; } .mg .c.new { background: var(--marker); }
+  @media (min-width: 820px) { #learn.vb { max-width: 900px; } #learn.vb .lex { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; } #learn.vb .lex .mg { margin: 8px 0 0; } }
   .lclue { margin: 8px 0; padding: 8px 12px; border-left: 3px solid var(--ink); background: var(--paper2); border-radius: 0 8px 8px 0; font-family: var(--serif); }
   .lso { display: inline-block; background: var(--marker); border-radius: 6px; padding: 1px 8px; font-weight: 600; margin: 2px 4px 2px 0; }
   .howlink { display: inline-block; margin-top: 6px; background: none; border: 0; padding: 0; color: var(--blue); text-decoration: underline; font-size: 14px; }
@@ -265,83 +282,246 @@
     <button class="icon" id="learnBack" aria-label="Back">‹</button>
     <div class="title"><h2>How to solve</h2><small style="text-transform:none">From the obvious to Fiendish, one step at a time</small></div>
   </div>
-  <nav class="lnav"><a href="#l-grid">The grid</a><a href="#l-1">Step 1</a><a href="#l-2">Step 2</a><a href="#l-3">Step 3</a></nav>
+  <div class="seg lver" id="learnVer"><button data-v="a">Version 1</button><button data-v="b">Version 2</button></div>
+  <div id="learnA">
+  <nav class="lnav"><a href="#l-aim">The idea</a><a href="#l-grid">The grid</a><a href="#l-1">Step 1</a><a href="#l-2">Step 2</a><a href="#l-3">Step 3</a><a href="#l-ladder">Recap</a></nav>
+
+  <section id="l-aim">
+    <h3>What's the game?</h3>
+    <p>Susan, John, Mary and James go to a café. Each orders a drink and a sandwich, and each pays a different price. You weren't there. All you have is the clues.</p>
+    <p><b>Your job: work out who had what.</b> You're the detective, and the clues are your witnesses.</p>
+    <h4>The three golden rules</h4>
+    <div class="lrule"><b>1. One each, no sharing.</b> Everyone has one drink, and each drink belongs to one person. Same for sandwiches and prices.</div>
+    <div class="lrule"><b>2. Only one right answer.</b> The clues always lead to it. You never have to guess.</div>
+    <div class="lrule"><b>3. Every clue is true.</b> No tricks, no fibs. Each clue means exactly what it says.</div>
+    <p>Rule 1 does a lot of work. Find out <b>Susan had the coffee</b>, and you also know Susan didn't have any other drink, and nobody else had the coffee. One fact, seven answers.</p>
+  </section>
 
   <section id="l-grid">
-    <h3>The grid</h3>
-    <p>Every square asks one question: <em>are these two the same person?</em> Tap once for <b>✕</b> (no), twice for <b>✓</b> (yes), three times to clear.</p>
-    <p>Inside each block, every row and every column ends up with exactly one ✓. That one rule does a lot of the work.</p>
-    <p>Every puzzle has exactly one answer, and you never need to guess. If you're stuck, there's always a move you can work out.</p>
+    <h3>The grid: your notebook</h3>
+    <p>Every square asks one question, like <em>"Did Susan have the coffee?"</em> Tap once for <b>✕</b> (no), twice for <b>✓</b> (yes), three times to clear.</p>
+    <p>Each row and column in a block ends up with just one ✓. So a ✓ crosses out the rest of its row and column. (Auto-cross in settings does this for you.)</p>
+    <p>It works backwards too: if everything in a row is ✕ but one square, that square is the ✓.</p>
   </section>
 
   <section id="l-1">
     <h3>Step 1 · Read it straight off</h3>
     <p class="lsub">Easy puzzles only need these.</p>
-    <h4>Say what it says</h4>
-    <div class="lclue">Ella wore the red cap.</div>
-    <p>Tick Ella / Red. <span class="lso">✓ Ella = Red</span></p>
-    <div class="lclue">Tom didn't order ham.</div>
-    <p><span class="lso">✕ Tom = Ham</span></p>
-    <h4>A tick crosses out its row and column</h4>
-    <p>Once Ella is red, nobody else is red and Ella isn't any other colour. (With auto-cross on, the app does this for you.)</p>
+    <h4>Clues that just tell you</h4>
+    <div class="lclue">James had the tea.</div>
+    <p><span class="lso">✓ James = Tea</span> And now nobody else had tea, and James had no other drink.</p>
+    <div class="lclue">Susan didn't have the cola.</div>
+    <p><span class="lso">✕ Susan = Cola</span> It doesn't say what she did have, but it's one less option.</p>
     <h4>Last one standing</h4>
-    <p>If every square but one in a row or column is crossed, the last one is the ✓.</p>
-    <h4>The quiet "no"s</h4>
-    <div class="lclue">Of Gorge and Ringo, one swims for the Penguins and the other for the Otters.</div>
-    <p>You don't know which way round yet, but you do know neither swims for the Dolphins or the Seals, and Gorge and Ringo are different people.</p>
-    <div class="lclue">Amy, Ben, the customer who had cola and the one who ordered tuna were four different customers.</div>
-    <p>Every pair in that list is a ✕: Amy isn't the cola drinker, cola isn't tuna, and so on.</p>
+    <p>Three ✕s in a row of four? The fourth is your ✓. Nobody told you; you just ran out of other options.</p>
+    <h4>The hidden "no"s</h4>
+    <div class="lclue">Susan, John, the tea drinker and the person who had tuna were four different people.</div>
+    <p>Nobody in that list is anybody else in it. So Susan didn't have tea or tuna, John didn't have tea or tuna, and the tea drinker didn't have tuna.</p>
+    <div class="lclue">Of Mary and John, one had the tuna and the other had the BLT.</div>
+    <p>You don't know which way round yet. But neither of them had the toastie or the egg mayo.</p>
   </section>
 
   <section id="l-2">
     <h3>Step 2 · One clue plus your grid</h3>
-    <p class="lsub">Medium puzzles need these: read a clue against what you've already marked.</p>
+    <p class="lsub">Medium puzzles need these.</p>
     <h4>Number clues rule out the ends</h4>
-    <div class="lclue">Susan paid £2 more than the customer who had the coffee.</div>
-    <p>Three things straight away:</p>
+    <div class="lclue">The lemonade drinker paid £1 more than Susan.</div>
+    <p>Before you know any prices at all:</p>
     <ul>
-      <li>Susan didn't have the coffee (she paid more than that person).</li>
-      <li>Susan can't be on the lowest prices: there has to be room £2 below her.</li>
-      <li>The coffee drinker can't be on the highest prices: there has to be room £2 above.</li>
+      <li>Susan didn't have the lemonade.</li>
+      <li>Susan didn't pay the most.</li>
+      <li>The lemonade drinker didn't pay the least.</li>
     </ul>
-    <p>With prices £4 to £8: <span class="lso">✕ Susan = £4, £5</span> <span class="lso">✕ Coffee = £7, £8</span></p>
-    <p>"Lower than" and "ahead of" clues work the same way: the lower one can't be last, the higher one can't be first.</p>
-    <h4>Number clues and your grid</h4>
-    <div class="lclue">John had a lane number one higher than Paul.</div>
-    <p>If your grid already says Paul can only be in lane 2 or 3, then John can only be in lane 3 or 4.</p>
+    <p>Then come back to it later. Once you know what Susan paid, you know what the lemonade drinker paid.</p>
     <h4>Either / or</h4>
-    <div class="lclue">Cara bought either nachos or a hot dog.</div>
-    <p>Cross out every other snack for Cara. Later, once one of the two is ruled out, the other is her ✓.</p>
-    <h4>Carry facts across</h4>
-    <p>Once you know Ben ordered the ham, Ben and "the ham customer" are the same person. Anything you know about one is true of the other: if Ben didn't pay £4, the ham customer didn't either. Look across every block for these.</p>
+    <div class="lclue">Susan had either the cheese toastie or the BLT.</div>
+    <p>Cross out the tuna and egg mayo for Susan now. Rule out one of the two later, and the other is her ✓.</p>
+    <h4>Two names, one person</h4>
+    <div class="lclue">The tea drinker paid £5.</div>
+    <p>You already know James had the tea, so "the tea drinker" is just another name for James. <span class="lso">✓ James = £5</span> Look across every block for these. They're easy to miss.</p>
   </section>
 
   <section id="l-3">
     <h3>Step 3 · Two clues together</h3>
-    <p class="lsub">Hard and Fiendish puzzles. No single clue gives you anything new, but two together do. Fiendish needs this many times over.</p>
+    <p class="lsub">Hard and Fiendish puzzles. No single clue helps any more, but two together do.</p>
+    <h4>Locked pairs</h4>
+    <p>Your grid shows John had cola or lemonade, and so did Mary. You don't know who had which, but between them they've used both up. So Susan and James didn't have cola or lemonade.</p>
+    <h4>Chains</h4>
+    <div class="lclue">Mary paid more than James.</div>
+    <div class="lclue">James paid more than John.</div>
+    <p>Line them up: John, James, Mary. James is in the middle, so he wasn't the cheapest or the dearest. Mary wasn't the cheapest, and John wasn't the dearest.</p>
     <h4>The "what if?" test</h4>
-    <p>Pick a square and ask: <em>what if this were a ✓?</em> Follow what the clues then force. If you hit a dead end (someone with nowhere left to go, or a clue that can't be true) the square must be a ✕. That isn't guessing: you only mark it once you've shown the other way is impossible.</p>
-    <div class="lclue">Audrey paid £2 more than the customer who ordered egg mayo.</div>
-    <div class="lclue">Kevin, Ben, the egg mayo customer and the smoothie customer were four different customers.</div>
-    <p>Your grid says Kevin paid £5, £6 or £7. Could Ben have paid £6?</p>
-    <ul>
-      <li>Audrey isn't egg mayo (she paid more than them) and isn't the smoothie (your grid), so with the second clue all five customers are different people.</li>
-      <li>Audrey and egg mayo are £2 apart: £4 & £6, £5 & £7 or £6 & £8. If Ben has £6, only £5 & £7 is left.</li>
-      <li>Now £5, £6 and £7 are all taken, so Kevin has nowhere to go. Dead end.</li>
-    </ul>
-    <p><span class="lso">✕ Ben = £6</span> And the same test rules out the smoothie customer at £6.</p>
-    <h4>Boxing in</h4>
-    <div class="lclue">John had a lane number one higher than Paul.</div>
-    <p>Your grid says Ringo wears red and Gorge wears yellow. John and Paul sit side by side, so Ringo and Gorge get the other two lanes: 3 & 4, 1 & 4, or 1 & 2. If your grid also says Ringo isn't in lane 4 and Gorge isn't in lane 1, then Ringo is never in lane 2 and Gorge is never in lane 3.</p>
-    <p><span class="lso">✕ Lane 2 = Red</span> <span class="lso">✕ Lane 3 = Yellow</span></p>
+    <div class="lclue">Mary paid £1 more than Susan.</div>
+    <div class="lclue">James paid £1 more than John.</div>
+    <p>What if Mary paid £6? Then Susan paid £5, which leaves £4 and £7 for John and James. They can't be £1 apart. Dead end, so <span class="lso">✕ Mary = £6</span></p>
+    <p>That isn't guessing. You try a ✓ in your head, show it can't work, and only then write the ✕.</p>
     <h4>Tips</h4>
     <ul>
-      <li>Start "what if?" with the square that has the fewest options left: dead ends come quicker.</li>
-      <li>Number clues pair well with "four different people" clues, as above.</li>
-      <li>Cross off a clue once everything it says is on your grid, but keep its facts in mind.</li>
-      <li>Stuck? A hint shows where to look first, and its "Why?" plays out the "what if?" for you.</li>
+      <li>Try "what if?" on a square with only two options left.</li>
+      <li>Cross off a clue once everything it says is on your grid.</li>
+      <li>Stuck? A hint shows where to look, and "Why?" walks you through it.</li>
     </ul>
   </section>
+
+  <section id="l-ladder">
+    <h3>Recap: the whole ladder</h3>
+    <ol>
+      <li><b>Just tell me.</b> Put it straight on the grid.</li>
+      <li><b>One each.</b> A ✓ crosses out its row and column; the last square left is the ✓.</li>
+      <li><b>Hidden "no"s.</b> Different people can't share anything.</li>
+      <li><b>Fencing in.</b> Either/or clues, and number clues ruling out the ends.</li>
+      <li><b>Two names, one person.</b> What's true of one is true of the other.</li>
+      <li><b>Locked pairs.</b> Two people using up two options between them.</li>
+      <li><b>Chains.</b> Line clues up to compare people who never meet in one clue.</li>
+      <li><b>What if?</b> If a ✓ leads somewhere impossible, it's a ✕.</li>
+    </ol>
+  </section>
+  </div>
+  <div id="learnB">
+  <nav class="lnav"><a href="#lb-aim">The idea</a><a href="#lb-grid">The grid</a><a href="#lb-story">Try one</a><a href="#lb-1">Step 1</a><a href="#lb-2">Step 2</a><a href="#lb-3">Step 3</a><a href="#lb-fin">Finish</a></nav>
+
+  <section id="lb-aim">
+    <h3>What is a logic puzzle?</h3>
+    <p>A logic puzzle gives you a little story and a few groups of things. Maybe four people, four drinks and four sandwiches. Maybe five dogs, five owners and five colours of lead.</p>
+    <p>Each thing in a group goes with exactly one thing from every other group. <b>Your job is to work out what goes with what.</b></p>
+    <p>You do it with the clues and with <b>logic</b>: working out new facts from the ones you already know, one step at a time. You never have to guess.</p>
+    <h4>The rules</h4>
+    <p>Every game has rules. Chess has loads. Logic puzzles have just three:</p>
+    <div class="lrule"><b>1. One each, no sharing.</b> Everything goes with exactly one thing from each other group. Nobody has two drinks, and no two people share one.</div>
+    <div class="lrule"><b>2. There's only one right answer.</b> There's exactly one way for everything to fit together, and the clues are always enough to find it.</div>
+    <div class="lrule"><b>3. Every clue is true.</b> No tricks, no fibs. Each clue means exactly what it says.</div>
+    <p>That's it. Everything else is just using those two rules cleverly.</p>
+  </section>
+
+  <section id="lb-grid">
+    <h3>The grid: a place for your notes</h3>
+    <p>You could solve a logic puzzle in your head, with just the clues and the lists of names. The grid simply saves you having to remember it all.</p>
+    <p>Every square asks one question: <em>do these two go together?</em> Tap once for <b>✕</b> (no), twice for <b>✓</b> (yes), three times to clear.</p>
+    <h4>A clue often tells you more than it says</h4>
+    <p>Here's one block of a grid: letters A to D, and numbers 1 to 4.</p>
+    <div class="lex"><div>
+      <div class="lclue">A isn't 1.</div>
+      <p>That's one fact, so one ✕.</p>
+    </div><div class="mg" data-g="abc" data-s="1"></div></div>
+    <div class="lex"><div>
+      <div class="lclue">B is 3.</div>
+      <p>That's a ✓. But now think logically. B only gets one number, so B isn't 1, 2 or 4. And 3 only goes with one letter, so A, C and D aren't 3.</p>
+      <p>One clue: one ✓ and six ✕s. That's the no-sharing rule at work, and you'll use it more than anything else. (Auto-cross in settings fills in those ✕s for you.)</p>
+    </div><div class="mg" data-g="abc" data-s="2"></div></div>
+    <div class="lex"><div>
+      <div class="lclue">A isn't 4.</div>
+      <p>Look at A's row now. Only one square is left, so A must be 2. When everything else is crossed out, the last one standing is the ✓.</p>
+    </div><div class="mg" data-g="abc" data-s="3"></div></div>
+  </section>
+
+  <section id="lb-story">
+    <h3>Let's try one</h3>
+    <p>Here's a real puzzle. Everything from here on uses it.</p>
+    <div class="lclue">Susan, John, Mary and James went to a café. Each had a different drink and a different sandwich, and each paid a different price.</div>
+    <ul class="lgroups">
+      <li><b>People:</b> Susan, John, Mary, James</li>
+      <li><b>Drinks:</b> coffee, tea, cola, lemonade</li>
+      <li><b>Sandwiches:</b> cheese toastie, BLT, tuna, egg mayo</li>
+      <li><b>Prices:</b> £4, £5, £6, £7</li>
+    </ul>
+    <div class="lex"><div>
+      <p>Four groups, so the grid has a block for every pair of groups: people and drinks, people and sandwiches, drinks and prices, and so on.</p>
+      <p>Here it is, empty. Take the clues one at a time and watch it fill up.</p>
+    </div><div class="mg" data-g="cafe" data-s="0"></div></div>
+  </section>
+
+  <section id="lb-1">
+    <h3>Step 1 · Read it straight off</h3>
+    <p class="lsub">Easy puzzles only need these.</p>
+    <h4>Clues that just tell you</h4>
+    <div class="lex"><div>
+      <div class="lclue">James had the tea.</div>
+      <p>A ✓, and because of no sharing, six ✕s come with it.</p>
+    </div><div class="mg" data-g="cafe" data-s="1"></div></div>
+    <div class="lex"><div>
+      <div class="lclue">Susan didn't have the cola.</div>
+      <p>Just one ✕. It doesn't say what she did have, but it's one less option.</p>
+    </div><div class="mg" data-g="cafe" data-s="2"></div></div>
+    <h4>The hidden "no"s</h4>
+    <div class="lex"><div>
+      <div class="lclue">Susan, John, the tea drinker and the person who had tuna were four different people.</div>
+      <p>Nobody in that list is anybody else in it. Some of those ✕s are already on your grid. The new ones: Susan and John didn't have tuna, and neither did the tea drinker.</p>
+    </div><div class="mg" data-g="cafe" data-s="3"></div></div>
+    <div class="lex"><div>
+      <div class="lclue">Of Mary and John, one had the tuna and the other had the BLT.</div>
+      <p>So neither of them had the toastie or the egg mayo. Now look at John's row: tuna is already crossed out, so the BLT is the last one standing. That means Mary had the tuna.</p>
+    </div><div class="mg" data-g="cafe" data-s="4"></div></div>
+  </section>
+
+  <section id="lb-2">
+    <h3>Step 2 · One clue plus your grid</h3>
+    <p class="lsub">Medium puzzles need these.</p>
+    <h4>Number clues rule out the ends</h4>
+    <div class="lex"><div>
+      <div class="lclue">The lemonade drinker paid £1 more than Susan.</div>
+      <ul>
+        <li>Susan didn't have the lemonade.</li>
+        <li>Susan didn't pay the most.</li>
+        <li>The lemonade drinker didn't pay the least.</li>
+      </ul>
+      <p>And look at Susan's drinks: tea, cola and lemonade are all crossed out. She had the coffee.</p>
+    </div><div class="mg" data-g="cafe" data-s="5"></div></div>
+    <h4>Either / or</h4>
+    <div class="lex"><div>
+      <div class="lclue">Susan had either the cheese toastie or the BLT.</div>
+      <p>Your grid already says she didn't have the BLT, so it's the toastie. That leaves James with the egg mayo.</p>
+    </div><div class="mg" data-g="cafe" data-s="6"></div></div>
+  </section>
+
+  <section id="lb-3">
+    <h3>Step 3 · Two clues together</h3>
+    <p class="lsub">Hard and Fiendish puzzles. One clue on its own doesn't help any more, but two together do.</p>
+    <h4>The "what if?" test</h4>
+    <div class="lex"><div>
+      <div class="lclue">Mary paid £1 more than Susan.</div>
+      <div class="lclue">James paid £1 more than John.</div>
+      <p>First the ends: Mary and James didn't pay the least, and John didn't pay the most.</p>
+      <p>Now, what if Mary paid £6? Then Susan paid £5, leaving £4 and £7 for John and James. They can't be £1 apart. Dead end. So Mary didn't pay £6, and Susan didn't pay £5.</p>
+      <p>That isn't guessing. You try a ✓ in your head, show it can't work, and only then write the ✕.</p>
+    </div><div class="mg" data-g="cafe" data-s="7"></div></div>
+    <h4>Chains</h4>
+    <div class="lex"><div>
+      <div class="lclue">Mary paid more than James.</div>
+      <div class="lclue">James paid more than John.</div>
+      <p>Line them up: John, James, Mary. Mary has two people below her, so she can't be in the bottom two. That leaves her only £7.</p>
+      <p>Mary paid £1 more than Susan, so Susan paid £6. And with John below James, the rest falls into place.</p>
+    </div><div class="mg" data-g="cafe" data-s="8"></div></div>
+    <h4>Tips</h4>
+    <ul>
+      <li>Try "what if?" on a square with only two options left.</li>
+      <li>If two people share the same two options, nobody else can have either of them.</li>
+      <li>Stuck? A hint shows where to look, and "Why?" walks you through it.</li>
+    </ul>
+  </section>
+
+  <section id="lb-fin">
+    <h3>Finish it off: two names, one person</h3>
+    <div class="lex"><div>
+      <p>Go back to the lemonade clue. Susan paid £6, so the lemonade drinker paid £7. Mary paid £7, so "the lemonade drinker" is just another name for Mary. That leaves John with the cola.</p>
+      <p>The bottom blocks fill in the same way. James had the tea and the egg mayo and paid £5, so tea goes with egg mayo, and both go with £5. Do that for everyone and the grid is full.</p>
+      <p><b>Solved.</b> Every puzzle in the app works the same way, just with more steps.</p>
+    </div><div class="mg" data-g="cafe" data-s="9"></div></div>
+  </section>
+
+  <section id="lb-ladder">
+    <h3>Recap: the whole ladder</h3>
+    <ol>
+      <li><b>Just tell me.</b> Put it straight on the grid.</li>
+      <li><b>One each.</b> A ✓ crosses out its row and column; the last square left is the ✓.</li>
+      <li><b>Hidden "no"s.</b> Different people can't share anything.</li>
+      <li><b>Fencing in.</b> Either/or clues, and number clues ruling out the ends.</li>
+      <li><b>Two names, one person.</b> What's true of one is true of the other.</li>
+      <li><b>Locked pairs.</b> Two people using up two options between them.</li>
+      <li><b>Chains.</b> Line clues up to compare people who never meet in one clue.</li>
+      <li><b>What if?</b> If a ✓ leads somewhere impossible, it's a ✕.</li>
+    </ol>
+  </section>
+  </div>
 </div>
 
 <div id="play" class="screen hidden">
@@ -380,10 +560,13 @@
 <script src="engine/engine.js"></script>
 <script src="engine/themes.js"></script>
 <script src="engine/bank.js"></script>
+<script src="engine/bank-big.js"></script>
 <script>
 (function () {
   'use strict';
-  const E = window.LPEngine, TH = window.LPThemes, HARD = window.LPBank || {}, FIENDISH = window.LPFiendish || {};
+  const E = window.LPEngine, TH = window.LPThemes;
+  // Big Grids (5×5, 5×6) have their own bank file; decks and ratings are per size, so they never mix with today's sizes
+  const HARD = Object.assign({}, window.LPBank, window.LPBigBank), FIENDISH = Object.assign({}, window.LPFiendish, window.LPBigFiendish);
   // Hard and Fiendish both come from skeleton banks; Fiendish only exists at the sizes in FIENDISH
   const BANKS = { hard: HARD, fiendish: FIENDISH };
   const bankOf = (level, size) => (BANKS[level] || {})[size] || [];
@@ -397,8 +580,8 @@
   const saveSettings = () => store.set('lp.settings', settings);
   // size = categories x items
   const SIZES = { '3x3': [3, 3], '3x4': [3, 4], '4x4': [4, 4], '4x5': [4, 5], '4x6': [4, 6], '5x5': [5, 5], '5x6': [5, 6] };
-  // Big Grids (5 categories): the code copes, but the size buttons stay hidden until the pack's bank and home-screen place are settled
-  const BIG_GRIDS = /[?&]big\b/.test(location.search); // open the app with ?big to try them
+  // Big Grids (5 categories): the size buttons show once both sizes have a proper Hard bank (?big shows them anyway, for testing)
+  const BIG_GRIDS = /[?&]big\b/.test(location.search) || ['5x5', '5x6'].every(z => (HARD[z] || []).length >= 10);
   if (!BIG_GRIDS) {
     document.querySelectorAll('button.big').forEach(b => b.remove());
     for (const k of ['size', 'makeSize']) if (/^5x/.test(settings[k] || '')) settings[k] = '4x6';
@@ -902,7 +1085,8 @@
     if (!G || G.solved) return;
     clearHintHighlights();
     const marks = [...G.marks].map(([k, v]) => { const [x, y] = k.split(',').map(Number); return [x, y, v]; });
-    const h = E.hint(G.P, marks);
+    // hints in the story's own words ("Otis didn't order hummus"), not grid symbols
+    const h = E.hint(G.P, marks, undefined, TH.voice(G.custom ? TH.custom(G.custom) : TH.byId(G.theme), G.P));
     G.hints++; save();
     if (h.type === 'mistake') {
       sheet(`<h4>Something's not right</h4><p>At least one mark in your grid is wrong, so any hint from here would mislead you.</p>
@@ -921,7 +1105,7 @@
     for (const x of h.items) (labEls.get(x) || []).forEach(el => el.classList.add('hl'));
     const clueChips = h.clues.length ? `<p>${h.clues.map(id => `<span class="chip">Clue ${id}</span>`).join('')}</p>` : '';
     const usesFacts = h.rule === 'clue' || h.rule === 'combine';
-    const sec = { direct: 'l-1', sweep: 'l-1', last: 'l-1', transfer: 'l-2', compare: 'l-2', clue: 'l-2', combine: 'l-3' }[h.rule] || 'l-grid';
+    const sec = { direct: 'l-1', sweep: 'l-1', last: 'l-1', pair: 'l-3', transfer: 'l-2', compare: 'l-2', clue: 'l-2', combine: 'l-3' }[h.rule] || 'l-grid';
     const how = `<button class="howlink" data-sec="${sec}">How does this kind of move work?</button>`;
     let body = `<div class="lvl">Hint · step 1 of 3</div><h4>Where to look</h4>${clueChips}<p>${h.look}</p>${how}`;
     if (level >= 2 && usesFacts) {
@@ -933,7 +1117,7 @@
     if (level >= 3) {
       for (const m of h.marks) { const el = cellEls.get(key(m[0], m[1])); if (el) el.classList.add('target'); }
       body = `<div class="lvl">Hint · step 3 of 3</div><h4>So…</h4>${clueChips}` +
-        (usesFacts && h.facts.length ? `<p style="color:var(--ink2)">Using: ${h.facts.join('; ')}</p>` : '') +
+        (usesFacts && h.facts.length ? `<p style="color:var(--ink2)">Using: ${h.facts.join(' ')}</p>` : '') +
         `<ul>${h.conclusion.map(c => `<li>${c}</li>`).join('')}</ul>` +
         (h.why && h.why.length ? `<div class="why"><b>Why?</b>${h.why.map(w => `<p>${w}</p>`).join('')}</div>` : '');
     }
@@ -1268,9 +1452,45 @@
     learnFrom = !$('#play').classList.contains('hidden') ? 'play' : 'home';
     ['#home', '#play', '#make', '#review'].forEach(id => $(id).classList.add('hidden'));
     $('#learn').classList.remove('hidden');
+    showLearnVer();
+    if (sec && (settings.learnVer || 'b') === 'b') sec = { 'l-grid': 'lb-grid', 'l-1': 'lb-1', 'l-2': 'lb-2', 'l-3': 'lb-3' }[sec] || sec;
     const el = sec && document.getElementById(sec);
     if (el) el.scrollIntoView(); else window.scrollTo(0, 0);
   }
+  // version 2 walkthrough grids: marks build up step by step, the newest highlighted
+  const MG = {"cafe":{"cats":[["Person",["Susan","John","Mary","James"]],["Drink",["Coffee","Tea","Cola","Lemonade"]],["Sandwich",["Toastie","BLT","Tuna","Egg mayo"]],["Price",["£4","£5","£6","£7"]]],"steps":{"s1":[[3,5,1],[3,4,-1],[3,6,-1],[3,7,-1],[0,5,-1],[1,5,-1],[2,5,-1]],"s2":[[0,6,-1]],"s3":[[0,10,-1],[1,10,-1],[5,10,-1]],"s4":[[2,8,-1],[2,11,-1],[1,8,-1],[1,11,-1],[1,9,1],[0,9,-1],[2,9,-1],[3,9,-1],[2,10,1],[3,10,-1]],"s5":[[0,7,-1],[0,15,-1],[7,12,-1],[0,4,1],[1,4,-1],[2,4,-1]],"s6":[[0,11,-1],[0,8,1],[3,8,-1],[3,11,1]],"s7":[[2,12,-1],[2,14,-1],[0,13,-1],[1,15,-1],[3,12,-1]],"s8":[[2,13,-1],[1,14,-1],[3,15,-1],[0,14,1],[0,12,-1],[2,15,1],[1,12,1],[3,14,-1],[1,13,-1],[3,13,1]],"s9":[[1,6,1],[1,7,-1],[2,6,-1],[2,7,1],[4,8,1],[4,9,-1],[4,10,-1],[4,11,-1],[5,8,-1],[5,9,-1],[5,11,1],[6,8,-1],[6,9,1],[6,10,-1],[6,11,-1],[7,8,-1],[7,9,-1],[7,10,1],[7,11,-1],[4,12,-1],[4,13,-1],[4,14,1],[4,15,-1],[5,12,-1],[5,13,1],[5,14,-1],[5,15,-1],[6,12,1],[6,13,-1],[6,14,-1],[6,15,-1],[7,13,-1],[7,14,-1],[7,15,1],[8,12,-1],[8,13,-1],[8,14,1],[8,15,-1],[9,12,1],[9,13,-1],[9,14,-1],[9,15,-1],[10,12,-1],[10,13,-1],[10,14,-1],[10,15,1],[11,12,-1],[11,13,1],[11,14,-1],[11,15,-1]]}},"abc":{"cats":[["Letter",["A","B","C","D"]],["Number",["1","2","3","4"]]],"steps":{"s1":[[0,4,-1]],"s2":[[1,6,1],[1,4,-1],[1,5,-1],[1,7,-1],[0,6,-1],[2,6,-1],[3,6,-1]],"s3":[[0,7,-1],[0,5,1],[2,5,-1],[3,5,-1]]}}};
+  function drawMG(el) {
+    const g = MG[el.dataset.g], s = +el.dataset.s, k = g.cats.length, n = 4, CAT = 14;
+    const marks = new Map(), fresh = new Set();
+    for (let i = 1; i <= s; i++) for (const [a, b, v] of (g.steps['s' + i] || [])) { marks.set(a + ',' + b, v); if (i === s) fresh.add(a + ',' + b); }
+    const colCats = []; for (let c = 1; c < k; c++) colCats.push(c);
+    const rowCats = [0]; for (let c = k - 1; c >= 2; c--) rowCats.push(c);
+    const longest = Math.max(...g.cats.flatMap(c => c[1].map(x => x.length)));
+    const LAB = Math.min(72, 12 + longest * 6), up = longest <= 2, CS = up ? 28 : 20, LABH = up ? 18 : LAB;
+    el.style.gridTemplateColumns = `${CAT}px ${LAB}px repeat(${colCats.length * n}, ${CS}px)`;
+    el.style.gridTemplateRows = `${CAT}px ${LABH}px repeat(${rowCats.length * n}, ${CS}px)`;
+    let h = '';
+    const at = (r, c, rs, cs) => `grid-row:${rs ? r + ' / span ' + rs : r};grid-column:${cs ? c + ' / span ' + cs : c}`;
+    colCats.forEach((c, ci) => { h += `<div class="cn" style="${at(1, 3 + ci * n, 0, n)}">${g.cats[c][0]}</div>`; g.cats[c][1].forEach((x, i) => h += `<div class="l col${up ? ' up' : ''}" style="${at(2, 3 + ci * n + i)}">${x}</div>`); });
+    rowCats.forEach((c, ri) => { h += `<div class="cn v" style="${at(3 + ri * n, 1, n, 0)}">${g.cats[c][0]}</div>`; g.cats[c][1].forEach((x, i) => h += `<div class="l row" style="${at(3 + ri * n + i, 2)}">${x}</div>`); });
+    rowCats.forEach((rc, ri) => colCats.forEach((cc, ci) => {
+      if (ri !== 0 && ci >= k - 1 - ri) return;
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+        const x = rc * n + i, y = cc * n + j, kk = Math.min(x, y) + ',' + Math.max(x, y), v = marks.get(kk) || 0;
+        const cls = 'c' + (j === 0 ? ' bl' : '') + (i === 0 ? ' bt' : '') + (j === n - 1 ? ' br' : '') + (i === n - 1 ? ' bb' : '') + (v === 1 ? ' yes' : v === -1 ? ' no' : '') + (fresh.has(kk) ? ' new' : '');
+        h += `<div class="${cls}" style="${at(3 + ri * n + i, 3 + ci * n + j)}">${v === 1 ? TICK : v === -1 ? CROSS : ''}</div>`;
+      }
+    }));
+    el.innerHTML = h;
+  }
+  function showLearnVer() {
+    const v = settings.learnVer || 'b';
+    $('#learnA').classList.toggle('hidden', v !== 'a'); $('#learnB').classList.toggle('hidden', v !== 'b');
+    $('#learn').classList.toggle('vb', v === 'b');
+    document.querySelectorAll('#learnVer button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+    if (v === 'b') document.querySelectorAll('#learnB .mg').forEach(el => { if (!el.innerHTML) drawMG(el); });
+  }
+  document.querySelectorAll('#learnVer button').forEach(b => b.onclick = () => { settings.learnVer = b.dataset.v; saveSettings(); showLearnVer(); window.scrollTo(0, 0); });
   $('#learnBtn').onclick = () => openLearn();
   $('#learnBack').onclick = () => { $('#learn').classList.add('hidden'); if (learnFrom === 'play' && G) { $('#play').classList.remove('hidden'); window.scrollTo(0, 0); } else renderHome(); };
   document.querySelectorAll('.lnav a').forEach(a => a.onclick = e => { e.preventDefault(); document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' }); });

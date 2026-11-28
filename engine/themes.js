@@ -1776,7 +1776,8 @@ function LPThemesFactory(root) {
   };
 
   // ---------- grammar ----------
-  function attachText(theme, P, r) {
+  // the story's grammar for one puzzle: how to name an item and say what's true of it (used by the clues and the hints)
+  function grammar(theme, P) {
     const n = P.n;
     const defs = [theme.anchor].concat(P.cats.slice(1).map(c => catsOf(theme).find(t => t.id === c.id)));
     const cat = x => Math.floor(x / n);
@@ -1806,6 +1807,41 @@ function LPThemesFactory(root) {
     const cap = s => s.charAt(0).toUpperCase() + s.slice(1) + '.';
     const list = xs => xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1];
     const personFirst = (a, b) => (isPerson(b) && !isPerson(a)) ? [b, a] : [a, b];
+    return { n, defs, cat, item, isPerson, who, neg, subj, poss, cap, list, personFirst };
+  }
+
+  // The story's voice for hints: every fact as a plain sentence ("Otis didn't order hummus"), so hints read like a person, not a grid.
+  function voice(theme, P) {
+    const g = grammar(theme, P), DET = new Set(['the', 'a', 'an']);
+    // "paid £4, £5 or £6": the shared leading words said once (articles stay with each item: "had the tea or the cola")
+    const many = (phrases, conj) => {
+      if (phrases.length === 1) return phrases[0];
+      const ws = phrases.map(p => p.split(' '));
+      let k = 0, e = 0;
+      while (ws.every(w => k < w.length - 1 && w[k] === ws[0][k] && !DET.has(w[k]))) k++;
+      // and shared last words said once: "scored 32 or 33 points"
+      while (ws.every(w => w.length - e - 1 > k && w[w.length - 1 - e] === ws[0][ws[0].length - 1 - e])) e++;
+      const head = ws[0].slice(0, k).join(' '), foot = e ? ' ' + ws[0].slice(ws[0].length - e).join(' ') : '';
+      const tails = ws.map(w => w.slice(k, w.length - e).join(' '));
+      return (head ? head + ' ' : '') + tails.slice(0, -1).join(', ') + ' ' + conj + ' ' + tails[tails.length - 1] + foot;
+    };
+    const fact = (x, y, v) => {
+      const [a, b] = g.personFirst(x, y), p = g.poss(a, b);
+      if (p) return p + (v === 1 ? ' is ' : " isn't ") + (g.item(b).say || g.item(b).name);
+      return `${g.subj(a)} ${v === 1 ? g.who(b) : g.neg(b)}`;
+    };
+    return {
+      fact, many,
+      name: (x, short) => g.subj(x, short),
+      options: (x, ys, v, conj) => `${g.subj(x)} ${many(ys.map(y => v === 1 ? g.who(y) : g.neg(y)), conj || 'or')}`,
+      does: (ys, conj) => many(ys.map(y => g.who(y)), conj || 'and'),
+      cap: t => t.charAt(0).toUpperCase() + t.slice(1),
+      whatever: 'whatever the ' + (theme.anchor.name || 'number').toLowerCase(),
+    };
+  }
+
+  function attachText(theme, P, r) {
+    const { n, defs, cat, item, isPerson, who, neg, subj, poss, cap, list, personFirst } = grammar(theme, P);
 
     for (const c of P.clues) {
       const R = c.refs;
@@ -2040,7 +2076,7 @@ function LPThemesFactory(root) {
     return { names, words, problems: [...new Set(problems)], warnings };
   }
 
-  const api = { THEMES, FEATURED, NAMES, pickNames, renamePeople, custom, fillable, checkWords, fillIn, TOPIC_ANCHORS, ENTITIES, byId: id => THEMES.find(t => t.id === id) };
+  const api = { voice: (theme, P) => voice(theme, P), THEMES, FEATURED, NAMES, pickNames, renamePeople, custom, fillable, checkWords, fillIn, TOPIC_ANCHORS, ENTITIES, byId: id => THEMES.find(t => t.id === id) };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.LPThemes = api;
 }

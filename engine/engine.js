@@ -264,6 +264,27 @@ function LPEngineFactory(root) {
       for (let y = c * n; y < (c + 1) * n; y++) if (S.rel(x, y) !== -1) { cnt++; cand = y; }
       if (cnt === 1 && S.rel(x, cand) !== 1) return { tier: 1, rule: 'last', clues: [], marks: applyMarks(S, [[x, cand, 1]]) };
     }
+    // 6. a pair: two rows of a grid with the same two options left between them (e.g. "of Ivy and Maeve, one was
+    //    the pirate and the other the admiral") use up those two options, so nobody else can have them.
+    //    Both ways round, so it also covers two columns that only fit the same two rows.
+    for (let ca = 0; ca < k; ca++) for (let cb = 0; cb < k; cb++) {
+      if (ca === cb) continue;
+      const opt = [];
+      for (let i = 0; i < n; i++) {
+        let m = 0; for (let j = 0; j < n; j++) if (S.rel(ca * n + i, cb * n + j) !== -1) m |= 1 << j;
+        opt.push(m);
+      }
+      for (let i = 0; i < n; i++) {
+        if (popcount(opt[i]) !== 2) continue;
+        for (let i2 = i + 1; i2 < n; i2++) {
+          if (opt[i2] !== opt[i]) continue;
+          const marks = [];
+          for (let z = 0; z < n; z++) if (z !== i && z !== i2) for (let j = 0; j < n; j++)
+            if ((opt[i] & (1 << j)) && S.rel(ca * n + z, cb * n + j) !== -1) marks.push([ca * n + z, cb * n + j, -1]);
+          if (marks.length) return { tier: 1, rule: 'pair', clues: [], marks: applyMarks(S, marks), focus: [ca * n + i, ca * n + i2] };
+        }
+      }
+    }
     return null;
   }
 
@@ -491,7 +512,7 @@ function LPEngineFactory(root) {
   }
 
   // bump when a change makes old seeds build different puzzles (saved games check this)
-  const GEN_VERSION = 5;
+  const GEN_VERSION = 6;
 
   // Hard, by size (categories x items). On the easiest route (best move at every sticking point):
   //   minHard  = two-clue moments the solve must need (Nick's favourite 4x5 had 9)
@@ -773,6 +794,7 @@ function LPEngineFactory(root) {
       last: 'Only one option left',
       transfer: 'Carry known facts across grids (same thing, same facts)',
       compare: 'Compare the two grids',
+      pair: 'Two of them share the same two options, so nobody else can have those',
       clue: `Apply ${cl} to what you know so far`,
       combine: `Combine ${cl}`,
     }[step.rule];
@@ -830,8 +852,21 @@ function LPEngineFactory(root) {
   }
 
   // Readable lines for a set of facts: "Oxford: 2nd or 3rd", "Chloe = York"
-  function factLines(P, S, facts) {
+  function factLines(P, S, facts, V) {
     const n = P.n, lines = [];
+    if (V) { // as sentences: "The customer who ordered salmon paid £4, £5 or £6."
+      const byItem = new Map();
+      for (const f of facts) {
+        if (f[0] < n) { if (!byItem.has(f[1])) byItem.set(f[1], []); byItem.get(f[1]).push(f[0]); }
+        else lines.push(V.cap(V.fact(f[0], f[1], f[2])) + '.');
+      }
+      for (const [x, gone] of byItem) {
+        const left = []; for (let e = 0; e < n; e++) if (S.D[x] & (1 << e)) left.push(e);
+        if (gone.length === n - left.length && left.length <= 3) lines.unshift(V.cap(V.options(x, left, 1, 'or')) + '.');
+        else lines.unshift(V.cap(V.options(x, gone, -1, 'or')) + '.');
+      }
+      return lines;
+    }
     const byItem = new Map();
     for (const f of facts) {
       if (f[0] < n) { if (!byItem.has(f[1])) byItem.set(f[1], []); byItem.get(f[1]).push(f[0]); }
@@ -853,6 +888,7 @@ function LPEngineFactory(root) {
     last: 'Only one option is left.',
     transfer: 'Two things are the same person, so what you know about one applies to the other.',
     compare: 'Compare what you know about these two items.',
+    pair: 'These two have the same two options left between them, so those two are taken: nobody else can have them.',
     clue: 'Apply this clue to what is already in your grid.',
     combine: 'These two clues work together.',
   };
@@ -862,12 +898,12 @@ function LPEngineFactory(root) {
   // Play out the opposite of a conclusion with only the facts the step uses, one clue at a time, until
   // something breaks: "If Ben = £6, clue 2 gives Audrey = £7 and Egg mayo = £5, and that leaves Kevin with no price left."
   // When the clues only break together, split on the item with fewest options: "Tuna could be £5 or £7: with £5, …; with £7, …".
-  function whyNot(P, facts, step, m) {
+  function whyNot(P, facts, step, m, V) {
     const n = P.n, k = P.k, N = n * k;
     const clues = step.clues.map(id => P.clues.find(c => c.id === id));
     const and = xs => xs.length > 1 ? xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1] : xs[0];
     const or = xs => xs.length > 1 ? xs.slice(0, -1).join(', ') + ' or ' + xs[xs.length - 1] : xs[0];
-    const pair = (x, y, v) => { const [a, b] = x < n ? [y, x] : [x, y]; return `${label(P, a)} ${v === 1 ? '=' : '≠'} ${label(P, b)}`; };
+    const pair = (x, y, v) => { const [a, b] = x < n ? [y, x] : [x, y]; return V ? V.fact(a, b, v) : `${label(P, a)} ${v === 1 ? '=' : '≠'} ${label(P, b)}`; };
     const posOf = (T, x) => { for (let y = 0; y < n; y++) if (T.D[x] === 1 << y) return y; return -1; };
     const optsOf = (T, x) => { const o = []; for (let e = 0; e < n; e++) if (T.D[x] & (1 << e)) o.push(e); return o; };
     function settle(T) {
@@ -907,7 +943,7 @@ function LPEngineFactory(root) {
           if (!ch) continue;
           broke = settle(T);
           const fresh = []; for (let x = n; x < N; x++) if (!had.has(x) && posOf(T, x) >= 0) fresh.push(x);
-          if (fresh.length) chain.push(`clue ${c.id} gives ${and(fresh.map(x => pair(x, posOf(T, x), 1)))}`);
+          if (fresh.length) chain.push(`clue ${c.id} ${V ? 'means' : 'gives'} ${and(fresh.map(x => pair(x, posOf(T, x), 1)))}`);
           moved = true; break;
         }
         if (!moved && !broke) { if (enumerate(T, clues, 200000).count === 0) broke = { type: 'clues' }; break; }
@@ -916,6 +952,13 @@ function LPEngineFactory(root) {
     }
     // what broke, in words
     function ending(T, broke) {
+      if (V) {
+        if (broke.type === 'item') return `that leaves ${V.name(broke.x)} with no ${P.cats[0].name.toLowerCase()} at all`;
+        if (broke.type === 'group') return `that leaves no ${P.cats[broke.c].name.toLowerCase()} for ${V.name(broke.e)}`;
+        if (broke.type === 'clue') return `clue ${broke.id} doesn't fit`;
+        if (broke.type === 'clues') return `clues ${step.clues.join(' and ')} can't both be true`;
+        return 'the grid contradicts itself';
+      }
       if (broke.type === 'item') return `that leaves ${label(P, broke.x)} with no ${P.cats[0].name.toLowerCase()} left`;
       if (broke.type === 'group') return `that leaves no ${P.cats[broke.c].name.toLowerCase()} for ${label(P, broke.e)}`;
       if (broke.type === 'clue') {
@@ -934,7 +977,35 @@ function LPEngineFactory(root) {
     if (r.broke.type !== 'clues') return s + (r.chain.length ? ', and ' : ', ') + ending(r.T, r.broke) + '.';
     // the clues only break together: try each option of a clue item, fewest options first
     const refs = [...new Set(clues.flatMap(c => c.refs))].filter(x => x >= n).map(x => [x, optsOf(r.T, x)]).filter(([, o]) => o.length > 1).sort((a, b) => a[1].length - b[1].length);
-    for (const [x, o] of refs) {
+    if (V) for (const [x, o] of refs) {
+      const br = [];
+      for (const e of o) {
+        const T2 = r.T.clone(); T2.mark(e, x, 1);
+        const b = run(T2);
+        if (!b.broke || b.broke.type === 'clues' || (b.broke.type === 'item' && b.broke.x === x)) { br.length = 0; break; }
+        br.push({ e, chain: b.chain, end: ending(b.T, b.broke) });
+      }
+      if (!br.length) continue;
+      // say it of the person when the item is already pinned to one: "Gracie rode on float 2 or 3"
+      let who = x; for (let c = 1; c < k && who === x; c++) if (P.cats[c].person) for (let y = c * n; y < (c + 1) * n; y++) if (y !== x && r.T.rel(x, y) === 1) who = y;
+      const all = o.length === n, opts = V.options(who, o, 1, 'or');
+      const plain = br.every(b => !b.chain.length) && new Set(br.map(b => b.end)).size === 1;
+      let out;
+      if (plain) out = all ? `${s}${r.chain.length ? ', ' + r.chain.join(', then ') + ',' : ','} ${br[0].end}, ${V.whatever}.`
+        : `${s}${r.chain.length ? ', so' : ','} ${opts}, and ${br[0].end.replace(/^clue (\d+) doesn't fit$/, (_, id) => `${o.length > 2 ? 'none of those fits' : 'neither fits'} clue ${id}`)}.`;
+      else {
+        // "£4, £5 and £6 don't fit clue 8; with £7, clue 6 means …, and clue 8 doesn't fit"
+        const groups = [];
+        for (const b of br) {
+          const key = b.chain.length ? null : b.end, gp = key && groups.find(gr => gr.key === key);
+          if (gp) gp.es.push(b.e); else groups.push({ key, es: [b.e], b });
+        }
+        const parts = groups.map(gr => `with ${V.many(gr.es.map(e => label(P, e)), 'or')}, ${gr.b.chain.length ? gr.b.chain.join(', then ') + ', and ' : ''}${gr.b.end}`);
+        out = `${s}${r.chain.length ? ', so' : ','} ${opts}: ${parts.join('; ')}.`;
+      }
+      if (out.length <= 300) return out;
+    }
+    if (!V) for (const [x, o] of refs) {
       const branches = [];
       for (const e of o) {
         const T2 = r.T.clone(); T2.mark(e, x, 1);
@@ -953,8 +1024,44 @@ function LPEngineFactory(root) {
     return r.chain.length ? s + ', and ' + ending(r.T, r.broke) + '.' : null; // a bare "can't both be true" adds nothing
   }
 
-  // Hint from the player's marks: [[x, y, v], ...]
-  function hint(P, marks, maxTier) {
+  // "Ella and Holly only have judge or Tudor courtier left between them, so ..." (the pair move, named)
+  function pairText(P, S, step) {
+    const [a, b] = step.focus, cb = Math.floor(step.marks[0][1] / P.n), opts = [];
+    for (let y = cb * P.n; y < (cb + 1) * P.n; y++) if (S.rel(a, y) !== -1) opts.push(label(P, y));
+    if (opts.length !== 2) return RULE_TEXT.pair;
+    return `${label(P, a)} and ${label(P, b)} only have ${opts[0]} or ${opts[1]} left, so between them they take both: cross ${opts[0]} and ${opts[1]} off for the rest.`;
+  }
+
+  // Where to look, said with the story's voice: names the things involved, never the answer
+  function lookText(P, S, step, rule, clues, V) {
+    const c = clues.join(' and '), f = step.focus || [], m = step.marks[0];
+    switch (rule) {
+      case 'direct': return `Clue ${c} tells you something straight away.`;
+      case 'clue': return `Read clue ${c} against what your grid already shows.`;
+      case 'combine': return `Put clues ${c} side by side.`;
+      case 'sweep': return f.length ? `${V.cap(V.fact(f[0], f[1], 1))}, so cross off the rest of that row and column.` : RULE_TEXT.sweep;
+      case 'last': return m ? `Look at ${V.name(m[0])} in the ${P.cats[Math.floor(m[1] / P.n)].name.toLowerCase()} block: only one square is left.` : RULE_TEXT.last;
+      case 'transfer':
+        if (f.length && S.rel(f[0], f[1]) === 1) {
+          const [a, b] = P.cats[Math.floor(f[1] / P.n)].person ? [f[1], f[0]] : [f[0], f[1]];
+          return `${V.cap(V.fact(a, b, 1))}, so anything you know about ${V.name(a)} also goes for ${V.name(b)}.`;
+        }
+        if (f.length) return `${V.cap(V.fact(f[0], f[1], -1))}, so whatever is settled for one is ruled out for the other.`;
+        return RULE_TEXT.transfer;
+      case 'compare': return m ? `Compare ${V.name(m[0])} and ${V.name(m[1])}: look at what's still open for each in the other blocks.` : RULE_TEXT.compare;
+      case 'pair': {
+        const [a, b] = f, cb = Math.floor(m[1] / P.n), opts = [];
+        for (let y = cb * P.n; y < (cb + 1) * P.n; y++) if (S.rel(a, y) !== -1) opts.push(y);
+        if (opts.length !== 2) return RULE_TEXT.pair;
+        return `Of ${V.name(a)} and ${V.name(b, true)}, one ${V.does([opts[0]])} and the other ${V.does([opts[1]])}: nothing else is left for either. So cross those two off for everyone else.`;
+      }
+    }
+    return RULE_TEXT[rule];
+  }
+
+  // Hint from the player's marks: [[x, y, v], ...]. voice (optional, from LPThemes.voice) says every fact as a sentence.
+  function hint(P, marks, maxTier, voice) {
+    const V = voice || null;
     const tier = maxTier || { easy: 1, medium: 2, hard: 3, fiendish: 3 }[P.difficulty] || 3;
     const sol = P.solution;
     const wrong = marks.filter(([x, y, v]) => (sol[x] === sol[y]) !== (v === 1));
@@ -997,12 +1104,12 @@ function LPEngineFactory(root) {
     if (step.focus) step.focus.forEach(x => items.add(x));
     return {
       type: 'step', tier: step.tier, rule, clues: shownClues,
-      look: RULE_TEXT[rule],
-      facts: factLines(P, before, allFacts),
+      look: V ? lookText(P, before, step, rule, shownClues, V) : rule === 'pair' ? pairText(P, before, step) : RULE_TEXT[rule],
+      facts: factLines(P, before, allFacts, V),
       factMarks: allFacts,
       marks: step.marks,
-      conclusion: step.marks.map(([x, y, v]) => `${label(P, x)} ${v === 1 ? '=' : '≠'} ${label(P, y)}`),
-      why: (step.rule === 'clue' || step.rule === 'combine') ? step.marks.slice(0, 3).map(m => whyNot(P, allFacts.concat(hiddenFacts), step, m)).filter(w => w && w.length <= 260) : [],
+      conclusion: step.marks.map(([x, y, v]) => V ? V.cap(V.fact(x, y, v)) + '.' : `${label(P, x)} ${v === 1 ? '=' : '≠'} ${label(P, y)}`),
+      why: (step.rule === 'clue' || step.rule === 'combine') ? step.marks.slice(0, 3).map(m => whyNot(P, allFacts.concat(hiddenFacts), step, m, V)).filter(w => w && w.length <= (V ? 320 : 260)) : [],
       items: [...items],
     };
   }
