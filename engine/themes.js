@@ -2076,7 +2076,10 @@ function LPThemesFactory(root) {
     return { names, words, problems: [...new Set(problems)], warnings };
   }
 
-  const api = { voice: (theme, P) => voice(theme, P), THEMES, FEATURED, NAMES, pickNames, renamePeople, custom, fillable, checkWords, fillIn, TOPIC_ANCHORS, ENTITIES, byId: id => THEMES.find(t => t.id === id) };
+  // Case-number codes, one per story. FIXED FOREVER: a new story gets a new unused code; never change or reuse one. MY = Make your own.
+  const CODES = {"sandwich": "CD", "race": "RD", "street": "WR", "bakery": "VB", "rocket": "LW", "petshow": "VP", "parkrun": "SP", "sportsday": "SS", "bakeoff": "BT", "opengardens": "OG", "allotment": "AS", "dogwalk": "MD", "cottages": "SC", "station": "SD", "cafe": "SE", "bookclub": "BC", "musiclessons": "ML", "talentshow": "TS", "carboot": "CB", "wedding": "WE", "birthdays": "BP", "gala": "SG", "bikeride": "CH", "icecream": "IC", "pizza": "PN", "escape": "ER", "pubquiz": "PQ", "knitting": "KC", "hotel": "SH", "airport": "AG", "market": "FM", "pottery": "PC", "camping": "CW", "picnic": "FP", "fishing": "FI", "birdwatch": "GB", "choir": "CC", "christmas": "CM", "bonfire": "BN", "cinema": "CN", "gardencentre": "GC", "kites": "KF", "sandcastle": "SA", "roast": "SR", "lordmayor": "LM", "ferry": "IF", "funrun": "FF", "fete": "VF", "museum": "MT", "craftfair": "CF"};
+
+  const api = { CODES, voice: (theme, P) => voice(theme, P), THEMES, FEATURED, NAMES, pickNames, renamePeople, custom, fillable, checkWords, fillIn, TOPIC_ANCHORS, ENTITIES, byId: id => THEMES.find(t => t.id === id) };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.LPThemes = api;
 }

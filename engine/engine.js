@@ -1114,7 +1114,44 @@ function LPEngineFactory(root) {
     };
   }
 
-  const api = { SKEL_TYPES, toSkeleton, reskin, route, recipe, shown, GEN_VERSION, hardBar, deepSteps, rng, generate, solve, countSolutions, State, enumerate, stepText, label, clueHolds, makeCtx, explain, factLines, hint };
+  // ---------- case numbers ----------
+  // A case number is the recipe for one puzzle, e.g. LM45F-3C9B-5E7Q:
+  //   LM = story (LPThemes.CODES; MY = Make your own), 4 5 = categories x items, F = level (E/M/H/F),
+  //   then 7 characters: Hard/Fiendish = first 5 hex of the bank skeleton's id (4 chars) + deal seed < 32768 (3 chars);
+  //   Easy/Medium = engine version (1 char) + generator seed < 2^30 (6 chars); last character = check (catches typos).
+  // Crockford base 32: no I, L, O or U, and those typed by mistake are read as 1, 1, 0 (U is invalid).
+  const B32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ', LEVELS = { easy: 'E', medium: 'M', hard: 'H', fiendish: 'F' };
+  const b32 = (v, len) => { let s = ''; for (let i = 0; i < len; i++) { s = B32[v % 32] + s; v = Math.floor(v / 32); } return s; };
+  const unb32 = s => { let v = 0; for (const ch of s) { const d = B32.indexOf(ch); if (d < 0) return NaN; v = v * 32 + d; } return v; };
+  const checkOf = s => { let t = 0; for (let i = 0; i < s.length; i++) t += (i + 1) * parseInt(s[i], 36); return B32[t % 31]; };
+  const CASE_SEED = { bank: 32768, live: 2 ** 30 };
+  function caseCode(c) {
+    const lv = LEVELS[c.level]; if (!lv || !c.story) return null;
+    const bank = lv === 'H' || lv === 'F';
+    if (bank ? !(c.skel && c.seed >= 0 && c.seed < CASE_SEED.bank) : !(c.seed >= 0 && c.seed < CASE_SEED.live)) return null;
+    const body = bank ? b32(parseInt(c.skel.slice(0, 5), 16), 4) + b32(c.seed, 3) : b32(c.version != null ? c.version : GEN_VERSION, 1) + b32(c.seed, 6);
+    const raw = c.story + c.k + c.n + lv + body;
+    return `${raw.slice(0, 5)}-${raw.slice(5, 9)}-${raw.slice(9)}${checkOf(raw)}`;
+  }
+  // -> { story, k, n, level, skel5 | version, seed } or { error }
+  function parseCase(text) {
+    let s = String(text || '').toUpperCase().replace(/[\s\-·.]/g, '');
+    if (s.startsWith('CASE')) s = s.slice(4);
+    if (s.length !== 13) return { error: 'length' };
+    const head = s.slice(0, 5), rest = s.slice(5).replace(/O/g, '0').replace(/[IL]/g, '1');
+    const raw = head + rest.slice(0, 7);
+    if (checkOf(raw) !== rest[7]) return { error: 'check' };
+    const lv = Object.keys(LEVELS).find(l => LEVELS[l] === head[4]);
+    const out = { story: head.slice(0, 2), k: +head[2], n: +head[3], level: lv };
+    if (!lv || !(out.k >= 3 && out.k <= 5) || !(out.n >= 3 && out.n <= 7)) return { error: 'bad' };
+    const body = rest.slice(0, 7);
+    if (lv === 'hard' || lv === 'fiendish') { out.skel5 = unb32(body.slice(0, 4)).toString(16).padStart(5, '0'); out.seed = unb32(body.slice(4)); }
+    else { out.version = unb32(body[0]); out.seed = unb32(body.slice(1)); }
+    if (Number.isNaN(out.seed)) return { error: 'bad' };
+    return out;
+  }
+
+  const api = { caseCode, parseCase, CASE_SEED, SKEL_TYPES, toSkeleton, reskin, route, recipe, shown, GEN_VERSION, hardBar, deepSteps, rng, generate, solve, countSolutions, State, enumerate, stepText, label, clueHolds, makeCtx, explain, factLines, hint };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.LPEngine = api;
 }
