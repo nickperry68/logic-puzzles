@@ -204,6 +204,17 @@
   .mg .c.bl { border-left: 2px solid var(--ink); } .mg .c.bt { border-top: 2px solid var(--ink); } .mg .c.br { border-right: 2px solid var(--ink); } .mg .c.bb { border-bottom: 2px solid var(--ink); }
   .mg .c svg { width: 82%; height: 82%; display: block; } .mg .c.no { color: var(--xmark); } .mg .c.no svg { width: 60%; height: 60%; } .mg .c.new { background: var(--marker); }
   @media (min-width: 820px) { #learn.vb { max-width: 900px; } #learn.vb .lex { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; } #learn.vb .lex .mg { margin: 8px 0 0; } }
+  .lplayer { margin: 10px 0 4px; }
+  .lplayer .pgw { display: flex; justify-content: center; overflow-x: auto; }
+  .lplayer .pcap { min-height: 6.2em; margin: 12px 2px 8px; font-size: calc(16.5px * var(--fs)); line-height: 1.45; }
+  .lplayer .pctl { display: flex; gap: 8px; align-items: center; }
+  .lplayer .pctl button { border: 1.5px solid var(--ink); background: none; color: var(--ink); border-radius: 10px; min-width: 44px; height: 42px; font-size: 20px; line-height: 1; }
+  .lplayer .pctl .pplay { flex: 1; font-size: 16px; font-weight: 700; background: var(--ink); color: var(--paper); }
+  .lplayer .pbar { height: 4px; background: var(--rule); border-radius: 2px; margin: 10px 0 0; overflow: hidden; }
+  .lplayer .pbar i { display: block; height: 100%; background: var(--ink); width: 0; transition: width .3s; }
+  .mg .c.hl { background: var(--factbg); }
+  .mg .c svg { animation: mgpop .28s ease-out; }
+  @keyframes mgpop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .lclue { margin: 8px 0; padding: 8px 12px; border-left: 3px solid var(--ink); background: var(--paper2); border-radius: 0 8px 8px 0; font-family: var(--serif); }
   .lso { display: inline-block; background: var(--marker); border-radius: 6px; padding: 1px 8px; font-weight: 600; margin: 2px 4px 2px 0; }
   .howlink { display: inline-block; margin-top: 6px; background: none; border: 0; padding: 0; color: var(--blue); text-decoration: underline; font-size: 14px; }
@@ -299,7 +310,7 @@
     <button class="icon" id="learnBack" aria-label="Back">‹</button>
     <div class="title"><h2>How to solve</h2><small style="text-transform:none">From the obvious to Fiendish, one step at a time</small></div>
   </div>
-  <div class="seg lver" id="learnVer"><button data-v="a">Version 1</button><button data-v="b">Version 2</button></div>
+  <div class="seg lver" id="learnVer"><button data-v="a">Version 1</button><button data-v="b">Version 2</button><button data-v="c">Version 3</button></div>
   <div id="learnA">
   <nav class="lnav"><a href="#l-aim">The idea</a><a href="#l-grid">The grid</a><a href="#l-1">Step 1</a><a href="#l-2">Step 2</a><a href="#l-3">Step 3</a><a href="#l-ladder">Recap</a></nav>
 
@@ -356,13 +367,13 @@
     <h4>Two names, one person</h4>
     <div class="lclue">The tea drinker paid £5.</div>
     <p>You already know James had the tea, so "the tea drinker" is just another name for James. <span class="lso">✓ James = £5</span> Look across every block for these. They're easy to miss.</p>
+    <h4>Locked pairs</h4>
+    <p>Your grid shows John had cola or lemonade, and so did Mary. You don't know who had which, but between them they've used both up. So Susan and James didn't have cola or lemonade.</p>
   </section>
 
   <section id="l-3">
     <h3>Step 3 · Two clues together</h3>
     <p class="lsub">Hard and Fiendish puzzles. No single clue helps any more, but two together do.</p>
-    <h4>Locked pairs</h4>
-    <p>Your grid shows John had cola or lemonade, and so did Mary. You don't know who had which, but between them they've used both up. So Susan and James didn't have cola or lemonade.</p>
     <h4>Chains</h4>
     <div class="lclue">Mary paid more than James.</div>
     <div class="lclue">James paid more than John.</div>
@@ -407,12 +418,12 @@
     <div class="lrule"><b>1. One each, no sharing.</b> Everything goes with exactly one thing from each other group. Nobody has two drinks, and no two people share one.</div>
     <div class="lrule"><b>2. There's only one right answer.</b> There's exactly one way for everything to fit together, and the clues are always enough to find it.</div>
     <div class="lrule"><b>3. Every clue is true.</b> No tricks, no fibs. Each clue means exactly what it says.</div>
-    <p>That's it. Everything else is just using those two rules cleverly.</p>
+    <p>That's it. Simple rules, but every move you'll ever make comes from them.</p>
   </section>
 
   <section id="lb-grid">
     <h3>The grid: a place for your notes</h3>
-    <p>You could solve a logic puzzle in your head, with just the clues and the lists of names. The grid simply saves you having to remember it all.</p>
+    <p>You don't strictly need a grid. With a small puzzle you could work it all out in your head. But the grid keeps track for you, and the bigger the puzzle, the more it helps.</p>
     <p>Every square asks one question: <em>do these two go together?</em> Tap once for <b>✕</b> (no), twice for <b>✓</b> (yes), three times to clear.</p>
     <h4>A clue often tells you more than it says</h4>
     <p>Here's one block of a grid: letters A to D, and numbers 1 to 4.</p>
@@ -488,6 +499,8 @@
       <div class="lclue">Susan had either the cheese toastie or the BLT.</div>
       <p>Your grid already says she didn't have the BLT, so it's the toastie. That leaves James with the egg mayo.</p>
     </div><div class="mg" data-g="cafe" data-s="6"></div></div>
+    <h4>Locked pairs</h4>
+    <p>Not needed in this puzzle, but worth knowing: if two people have the same two options left (John cola or lemonade, Mary cola or lemonade), they use both up between them, so nobody else can have either.</p>
   </section>
 
   <section id="lb-3">
@@ -511,7 +524,6 @@
     <h4>Tips</h4>
     <ul>
       <li>Try "what if?" on a square with only two options left.</li>
-      <li>If two people share the same two options, nobody else can have either of them.</li>
       <li>Stuck? A hint shows where to look, and "Why?" walks you through it.</li>
     </ul>
   </section>
@@ -526,6 +538,51 @@
   </section>
 
   <section id="lb-ladder">
+    <h3>Recap: the whole ladder</h3>
+    <ol>
+      <li><b>Just tell me.</b> Put it straight on the grid.</li>
+      <li><b>One each.</b> A ✓ crosses out its row and column; the last square left is the ✓.</li>
+      <li><b>Hidden "no"s.</b> Different people can't share anything.</li>
+      <li><b>Fencing in.</b> Either/or clues, and number clues ruling out the ends.</li>
+      <li><b>Two names, one person.</b> What's true of one is true of the other.</li>
+      <li><b>Locked pairs.</b> Two people using up two options between them.</li>
+      <li><b>Chains.</b> Line clues up to compare people who never meet in one clue.</li>
+      <li><b>What if?</b> If a ✓ leads somewhere impossible, it's a ✕.</li>
+    </ol>
+  </section>
+  </div>
+  <div id="learnC">
+  <nav class="lnav"><a href="#lc-aim">The idea</a><a href="#lc-basics">The basics</a><a href="#lc-walk">Try one</a><a href="#lc-ladder">Recap</a></nav>
+
+  <section id="lc-aim">
+    <h3>What is a logic puzzle?</h3>
+    <p>A logic puzzle gives you a little story and a few groups of things. Maybe four children, four birthdays and four presents. Maybe five dogs, five owners and five colours of lead.</p>
+    <p>Each thing in a group goes with exactly one thing from every other group. <b>Your job is to work out what goes with what.</b></p>
+    <p>You do it with the clues and with <b>logic</b>: working out new facts from the ones you already know, one step at a time. You never have to guess.</p>
+    <h4>The rules</h4>
+    <p>Every game has rules. Chess has loads. Logic puzzles have just three:</p>
+    <div class="lrule"><b>1. One each, no sharing.</b> Everything goes with exactly one thing from each other group.</div>
+    <div class="lrule"><b>2. There's only one right answer.</b> There's exactly one way for everything to fit together, and the clues are always enough to find it.</div>
+    <div class="lrule"><b>3. Every clue is true.</b> No tricks, no fibs. Each clue means exactly what it says.</div>
+    <p>That's it. Simple rules, but every move you'll ever make comes from them.</p>
+    <h4>The grid</h4>
+    <p>You don't strictly need a grid. With a small puzzle you could work it all out in your head. But the grid keeps track for you, and the bigger the puzzle, the more it helps.</p>
+    <p>Every square asks one question: <em>do these two go together?</em> Tap once for <b>✕</b> (no), twice for <b>✓</b> (yes), three times to clear.</p>
+  </section>
+
+  <section id="lc-basics">
+    <h3>The basics</h3>
+    <p class="lsub">Press play, or step through at your own pace.</p>
+    <div class="lplayer" data-p="basics"></div>
+  </section>
+
+  <section id="lc-walk">
+    <h3>Let's try one</h3>
+    <div class="lclue">Susan, John, Mary and James all have birthdays this month: on the 7th, 14th, 21st and 28th. Each of them got a different present: a bike, a book, a football or a paint set.</div>
+    <div class="lplayer" data-p="party"></div>
+  </section>
+
+  <section id="lc-ladder">
     <h3>Recap: the whole ladder</h3>
     <ol>
       <li><b>Just tell me.</b> Put it straight on the grid.</li>
@@ -653,7 +710,7 @@
     if (!fromBank(settings.difficulty, k, n)) for (const id of ahead) Gen.prefetch(id, settings.difficulty, k, n);
     const saved = store.get('lp.game');
     const cb = $('#continueBtn');
-    if (saved && !saved.solved && saved.v === E.GEN_VERSION) { // older engines rebuild a different puzzle from the same seed
+    if (saved && !saved.solved && (E.VERSIONS || [E.GEN_VERSION]).includes(saved.v)) { // engines not in VERSIONS rebuild a different puzzle from the same seed
       const t = TH.byId(saved.theme) || { title: saved.title || 'Your puzzle' };
       cb.textContent = `Continue: ${t.title} (${saved.k || 4}×${saved.n || 5} ${saved.difficulty}, ${fmtTime(saved.elapsed || 0)})`;
       cb.classList.remove('hidden');
@@ -868,9 +925,10 @@
     if (kept && kept.seed === saved.seed && kept.theme === saved.theme) return start(kept, saved);
     // older save without the puzzle stored: rebuild it from its seed (Fiendish has always stored its puzzle)
     if (saved.difficulty === 'fiendish' || saved.custom) { toast('That puzzle could not be restored'); return renderHome(); }
-    withLoading(new Promise(res => setTimeout(() => res(E.generate(TH.byId(saved.theme), { difficulty: saved.difficulty, seed: saved.seed, k: saved.k || 4, n: saved.n || 5 })), 30)), P => start(P, saved));
+    withLoading(new Promise(res => setTimeout(() => res(E.generate(TH.byId(saved.theme), { difficulty: saved.difficulty, seed: saved.seed, k: saved.k || 4, n: saved.n || 5, version: saved.v })), 30)), P => start(P, saved));
   }
   function start(P, saved) {
+    if (P.version == null && saved && saved.v) P.version = saved.v; // a puzzle stored before engine 7 doesn't carry its version
     G = {
       P, theme: saved.theme, difficulty: saved.difficulty, seed: saved.seed, k: P.k, n: P.n,
       marks: new Map(saved.marks || []), undo: [], elapsed: saved.elapsed || 0,
@@ -890,7 +948,7 @@
   }
   function save() {
     if (!G) return;
-    store.set('lp.game', { v: E.GEN_VERSION, theme: G.theme, title: G.P.title, custom: G.custom, difficulty: G.difficulty, seed: G.seed, k: G.k, n: G.n, marks: [...G.marks], auto: [...G.auto], elapsed: G.elapsed, done: [...G.done], hints: G.hints, solved: G.solved });
+    store.set('lp.game', { v: G.P.version || E.GEN_VERSION, theme: G.theme, title: G.P.title, custom: G.custom, difficulty: G.difficulty, seed: G.seed, k: G.k, n: G.n, marks: [...G.marks], auto: [...G.auto], elapsed: G.elapsed, done: [...G.done], hints: G.hints, solved: G.solved });
   }
   function startTimer() {
     clearInterval(timerId);
@@ -1106,7 +1164,7 @@
     const P = G.P, story = G.custom ? 'MY' : TH.CODES[G.theme];
     if (!story) return null;
     const bank = G.difficulty === 'hard' || G.difficulty === 'fiendish';
-    return E.caseCode({ story, k: P.k, n: P.n, level: G.difficulty, skel: bank && P.skeleton ? P.skeleton.split('#')[1] : null, seed: P.seed });
+    return E.caseCode({ story, k: P.k, n: P.n, level: G.difficulty, skel: bank && P.skeleton ? P.skeleton.split('#')[1] : null, seed: P.seed, version: bank ? null : P.version });
   }
   function openCase(text) {
     const c = E.parseCase(text);
@@ -1132,8 +1190,8 @@
       if (!sk) return toast('That case is no longer in the files (the puzzle has been changed since)');
       return go(E.reskin(theme, sk, { id: size + '#' + sk.id, difficulty: c.level, seed: c.seed }));
     }
-    if (c.version !== E.GEN_VERSION) return toast('That case was set under older rules and can\'t be reopened');
-    withLoading(new Promise(res => setTimeout(() => res(E.generate(theme, { difficulty: c.level, k: c.k, n: c.n, seed: c.seed })), 30)), go);
+    if (!(E.VERSIONS || [E.GEN_VERSION]).includes(c.version)) return toast('That case was set under older rules and can\'t be reopened');
+    withLoading(new Promise(res => setTimeout(() => res(E.generate(theme, { difficulty: c.level, k: c.k, n: c.n, seed: c.seed, version: c.version })), 30)), go);
   }
   function renderCases() {
     ['#home', '#play', '#make', '#review', '#learn', '#stories'].forEach(id => $(id).classList.add('hidden'));
@@ -1186,7 +1244,7 @@
     for (const x of h.items) (labEls.get(x) || []).forEach(el => el.classList.add('hl'));
     const clueChips = h.clues.length ? `<p>${h.clues.map(id => `<span class="chip">Clue ${id}</span>`).join('')}</p>` : '';
     const usesFacts = h.rule === 'clue' || h.rule === 'combine';
-    const sec = { direct: 'l-1', sweep: 'l-1', last: 'l-1', pair: 'l-3', transfer: 'l-2', compare: 'l-2', clue: 'l-2', combine: 'l-3' }[h.rule] || 'l-grid';
+    const sec = { direct: 'l-1', sweep: 'l-1', last: 'l-1', pair: 'l-2', transfer: 'l-2', compare: 'l-2', clue: 'l-2', combine: 'l-3' }[h.rule] || 'l-grid';
     const how = `<button class="howlink" data-sec="${sec}">How does this kind of move work?</button>`;
     let body = `<div class="lvl">Hint · step 1 of 3</div><h4>Where to look</h4>${clueChips}<p>${h.look}</p>${how}`;
     if (level >= 2 && usesFacts) {
@@ -1534,7 +1592,9 @@
     ['#home', '#play', '#make', '#review'].forEach(id => $(id).classList.add('hidden'));
     $('#learn').classList.remove('hidden');
     showLearnVer();
-    if (sec && (settings.learnVer || 'b') === 'b') sec = { 'l-grid': 'lb-grid', 'l-1': 'lb-1', 'l-2': 'lb-2', 'l-3': 'lb-3' }[sec] || sec;
+    const lv = settings.learnVer || 'c';
+    if (sec && lv === 'b') sec = { 'l-grid': 'lb-grid', 'l-1': 'lb-1', 'l-2': 'lb-2', 'l-3': 'lb-3' }[sec] || sec;
+    if (sec && lv === 'c') sec = { 'l-grid': 'lc-basics', 'l-1': 'lc-basics', 'l-2': 'lc-basics', 'l-3': 'lc-basics' }[sec] || sec;
     const el = sec && document.getElementById(sec);
     if (el) el.scrollIntoView(); else window.scrollTo(0, 0);
   }
@@ -1564,16 +1624,71 @@
     }));
     el.innerHTML = h;
   }
+  // version 3: slideshows. Each slide adds marks (animated one after another) to the grid; 'clear' starts from empty
+  const PG = {"num5":{"cats":[["Number",["1","2","3","4","5"]],["Letter",["A","B","C","D","E"]]]},"party":{"cats":[["Child",["Susan","John","Mary","James"]],["Present",["Bike","Book","Football","Paint set"]],["Birthday",["7th","14th","21st","28th"]]]}};
+  const PLAYERS = {"basics":{"g":"num5","slides":[{"t":"Here's a grid with five letters and five numbers. Each letter goes with exactly one number.","add":[]},{"t":"It could be like this: A with 1, B with 2, C with 3, and so on.","add":[[0,5,1],[1,6,1],[2,7,1],[3,8,1],[4,9,1]]},{"t":"But it could just as easily be the other way: A with 5, B with 4…","clear":1,"add":[[4,5,1],[3,6,1],[2,7,1],[1,8,1],[0,9,1]]},{"t":"…or like this. In fact, there are <b>120</b> different ways to pair them up. Only one of them is the answer.","clear":1,"add":[[2,5,1],[0,6,1],[4,7,1],[1,8,1],[3,9,1]]},{"t":"Whichever way it goes, every row and every column has exactly one ✓. Every other square is a ✕.","add":[[0,5,-1],[1,5,-1],[3,5,-1],[4,5,-1],[1,6,-1],[2,6,-1],[3,6,-1],[4,6,-1],[0,7,-1],[1,7,-1],[2,7,-1],[3,7,-1],[0,8,-1],[2,8,-1],[3,8,-1],[4,8,-1],[0,9,-1],[1,9,-1],[2,9,-1],[4,9,-1]],"fast":1},{"t":"So how do you find the right one? That's what clues are for.","clear":1,"add":[]},{"t":"<b>Clue:</b> A isn't 1. One fact, one ✕.","add":[[0,5,-1]]},{"t":"<b>Clue:</b> B is 3. That's a ✓…","clear":1,"add":[[2,6,1]]},{"t":"…and because nothing is shared, B can't be any other number, and no other letter can be 3. One clue: one ✓ and eight ✕s.","add":[[0,6,-1],[1,6,-1],[3,6,-1],[4,6,-1],[2,5,-1],[2,7,-1],[2,8,-1],[2,9,-1]]},{"t":"<b>Clues:</b> A isn't 1. A isn't 4. A isn't 5.","add":[[0,5,-1],[3,5,-1],[4,5,-1]],"hl":[5]},{"t":"Look at A: only 2 is left. So A is 2. Last one standing.","add":[[1,5,1],[1,7,-1],[1,8,-1],[1,9,-1]],"hl":[5]},{"t":"<b>Clue:</b> C is either 1 or 2. <b>Clue:</b> D is either 1 or 2.","clear":1,"add":[[2,7,-1],[3,7,-1],[4,7,-1],[2,8,-1],[3,8,-1],[4,8,-1]],"hl":[7,8]},{"t":"You don't know which way round. But between them, C and D use up 1 and 2, so no other letter can have them.","add":[[0,5,-1],[1,5,-1],[0,6,-1],[1,6,-1],[0,9,-1],[1,9,-1]],"hl":[0,1]},{"t":"<b>Clue:</b> B's number is bigger than A's. So A can't be the biggest number, and B can't be the smallest.","clear":1,"add":[[4,5,-1],[0,6,-1]]},{"t":"Now say you already know A is 2 or 3.","clear":1,"add":[[0,5,-1],[3,5,-1],[4,5,-1]],"hl":[5]},{"t":"<b>Clue:</b> B is one more than A. So B is 3 or 4.","add":[[0,6,-1],[1,6,-1],[4,6,-1]],"hl":[6]},{"t":"Either A is 3 or B is 3, so C, D and E can't be. That's two clues working together.","add":[[2,7,-1],[2,8,-1],[2,9,-1]],"hl":[2]},{"t":"That's every kind of move. Now let's try a real puzzle.","add":[]}]},"party":{"g":"party","slides":[{"t":"Here's the empty grid. Take the clues one at a time.","add":[]},{"t":"<b>Clue:</b> James got the bike. One ✓, and six ✕s come with it.","add":[[3,4,1],[3,5,-1],[3,6,-1],[3,7,-1],[0,4,-1],[1,4,-1],[2,4,-1]]},{"t":"<b>Clue:</b> Susan didn't get the football. One ✕.","add":[[0,6,-1]]},{"t":"<b>Clue:</b> Of John and Mary, one got the book and the other got the football. So neither got the paint set. And between them they've used up the book and the football, so Susan didn't get the book. That leaves Susan the paint set.","add":[[1,7,-1],[2,7,-1],[0,5,-1],[0,7,1]]},{"t":"<b>Clue:</b> Susan, the child who got the book and the child born on the 7th are three different children. So Susan wasn't born on the 7th, and the book wasn't for the 7th.","add":[[0,8,-1],[5,8,-1]]},{"t":"<b>Clues:</b> John's birthday is a week after Susan's. Mary's is a week after John's. So those three are three weeks in a row, and Susan can't be the 21st or 28th. That leaves her the 14th, and everyone else falls into place.","add":[[0,10,-1],[0,11,-1],[2,8,-1],[2,9,-1],[1,8,-1],[1,11,-1],[0,9,1],[3,8,1],[1,9,-1],[3,9,-1],[1,10,1],[3,10,-1],[3,11,-1],[2,10,-1],[2,11,1]]},{"t":"<b>Clue:</b> The child who got the football has the last birthday of the month. That's the 28th, which is Mary. So Mary got the football, and John the book.","add":[[6,11,1],[2,6,1],[2,5,-1],[1,5,1],[1,6,-1],[6,8,-1],[6,9,-1],[6,10,-1],[4,11,-1],[5,11,-1],[7,11,-1]]},{"t":"James got the bike and his birthday is the 7th, so the bike goes with the 7th. Fill in the rest the same way. <b>Solved!</b>","add":[[4,8,1],[4,9,-1],[4,10,-1],[5,9,-1],[5,10,1],[7,8,-1],[7,9,1],[7,10,-1]],"fast":1}]}};
+  const players = {};
+  function makePlayer(root) {
+    const def = PLAYERS[root.dataset.p], g = PG[def.g], S = def.slides, k = g.cats.length, n = g.cats[0][1].length;
+    root.innerHTML = `<div class="pgw"><div class="mg"></div></div><div class="pbar"><i></i></div><div class="pcap" aria-live="polite"></div><div class="pctl"><button data-a="prev" aria-label="Back">‹</button><button data-a="play" class="pplay">▶ Play</button><button data-a="next" aria-label="Next">›</button></div>`;
+    const gridEl = root.querySelector('.mg'), cap = root.querySelector('.pcap'), bar = root.querySelector('.pbar i'), playBtn = root.querySelector('.pplay');
+    const colCats = []; for (let c = 1; c < k; c++) colCats.push(c);
+    const rowCats = [0]; for (let c = k - 1; c >= 2; c--) rowCats.push(c);
+    const longest = Math.max(...g.cats.flatMap(c => c[1].map(x => x.length)));
+    const up = longest <= 2, CAT = 14, LAB = up ? 22 : Math.min(76, 12 + longest * 6.2);
+    const cols = colCats.length * n, avail = Math.min(root.clientWidth || 340, 560);
+    const CS = Math.max(18, Math.min(up ? 48 : 30, Math.floor((avail - CAT - LAB - 6) / cols)));
+    gridEl.style.gridTemplateColumns = `${CAT}px ${LAB}px repeat(${cols}, ${CS}px)`;
+    gridEl.style.gridTemplateRows = `${CAT}px ${up ? 20 : LAB}px repeat(${rowCats.length * n}, ${CS}px)`;
+    const at = (r, c, rs, cs) => `grid-row:${rs ? r + ' / span ' + rs : r};grid-column:${cs ? c + ' / span ' + cs : c}`;
+    let h = '';
+    colCats.forEach((c, ci) => { h += `<div class="cn" style="${at(1, 3 + ci * n, 0, n)}">${g.cats[c][0]}</div>`; g.cats[c][1].forEach((x, i) => h += `<div class="l col${up ? ' up' : ''}" style="${at(2, 3 + ci * n + i)};${up ? 'font-size:15px;font-weight:600' : ''}">${x}</div>`); });
+    rowCats.forEach((c, ri) => { h += `<div class="cn v" style="${at(3 + ri * n, 1, n, 0)}">${g.cats[c][0]}</div>`; g.cats[c][1].forEach((x, i) => h += `<div class="l row" style="${at(3 + ri * n + i, 2)};${up ? 'font-size:15px;font-weight:600' : ''}">${x}</div>`); });
+    const cells = [];
+    rowCats.forEach((rc, ri) => colCats.forEach((cc, ci) => {
+      if (ri !== 0 && ci >= k - 1 - ri) return;
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+        const x = rc * n + i, y = cc * n + j;
+        cells.push({ x, y, kk: Math.min(x, y) + ',' + Math.max(x, y) });
+        h += `<div class="c${j === 0 ? ' bl' : ''}${i === 0 ? ' bt' : ''}${j === n - 1 ? ' br' : ''}${i === n - 1 ? ' bb' : ''}" data-k="${Math.min(x, y)},${Math.max(x, y)}" style="${at(3 + ri * n + i, 3 + ci * n + j)}"></div>`;
+      }
+    }));
+    gridEl.innerHTML = h;
+    const cellEl = new Map(); gridEl.querySelectorAll('.c').forEach(el => cellEl.set(el.dataset.k, el));
+    const big = up ? ' style="width:70%;height:70%"' : '';
+    const paint = (kk, v, fresh) => { const el = cellEl.get(kk); if (!el) return; el.innerHTML = v === 1 ? TICK : v === -1 ? CROSS : ''; el.classList.toggle('yes', v === 1); el.classList.toggle('no', v === -1); el.classList.toggle('new', !!fresh); };
+    const before = j => { const m = new Map(); let st = j; while (st > 0 && !S[st].clear) st--; for (let q = st; q < j; q++) for (const [a, b, v] of S[q].add) m.set(a + ',' + b, v); if (S[j].clear) m.clear(); return m; };
+    let i = 0, playing = false, timers = [];
+    const stop = () => { timers.forEach(clearTimeout); timers = []; };
+    function show(j) {
+      stop(); i = Math.max(0, Math.min(S.length - 1, j));
+      const sl = S[i], base = before(i), hl = new Set(sl.hl || []);
+      for (const [kk, el] of cellEl) { const v = base.get(kk) || 0; paint(kk, v, false); const [a, b] = kk.split(',').map(Number); el.classList.toggle('hl', hl.has(a) || hl.has(b)); }
+      if (!playing) playBtn.textContent = i === S.length - 1 ? '↺ Play again' : '▶ Play';
+      cap.innerHTML = sl.t; bar.style.width = (100 * (i + 1) / S.length) + '%';
+      const step = sl.add.length ? Math.min(sl.fast ? 45 : 170, 1800 / sl.add.length) : 0;
+      sl.add.forEach(([a, b, v], q) => timers.push(setTimeout(() => paint(a + ',' + b, v, true), 250 + q * step)));
+      if (playing) timers.push(setTimeout(() => { if (i < S.length - 1) show(i + 1); else setPlay(false); }, 250 + sl.add.length * step + 2200 + sl.t.replace(/<[^>]+>/g, '').length * 42));
+    }
+    function setPlay(on) { playing = on; playBtn.textContent = on ? '❚❚ Pause' : (i === S.length - 1 ? '↺ Play again' : '▶ Play'); }
+    root.querySelector('[data-a=prev]').onclick = () => show(i - 1);
+    root.querySelector('[data-a=next]').onclick = () => show(i + 1);
+    playBtn.onclick = () => { if (playing) { setPlay(false); stop(); show(i); return; } const restart = i === S.length - 1; setPlay(true); show(restart ? 0 : i + 1 < S.length && i > 0 ? i + 1 : (i === 0 ? 1 : i)); };
+    show(0); setPlay(false);
+    return { go: j => { setPlay(false); show(j); }, pause: () => { setPlay(false); stop(); } };
+  }
   function showLearnVer() {
-    const v = settings.learnVer || 'b';
-    $('#learnA').classList.toggle('hidden', v !== 'a'); $('#learnB').classList.toggle('hidden', v !== 'b');
+    const v = settings.learnVer || 'c';
+    $('#learnA').classList.toggle('hidden', v !== 'a'); $('#learnB').classList.toggle('hidden', v !== 'b'); $('#learnC').classList.toggle('hidden', v !== 'c');
+    Object.values(players).forEach(p => p.pause());
+    if (v === 'c') document.querySelectorAll('#learnC .lplayer').forEach(el => { if (!players[el.dataset.p]) players[el.dataset.p] = makePlayer(el); });
     $('#learn').classList.toggle('vb', v === 'b');
     document.querySelectorAll('#learnVer button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
     if (v === 'b') document.querySelectorAll('#learnB .mg').forEach(el => { if (!el.innerHTML) drawMG(el); });
   }
   document.querySelectorAll('#learnVer button').forEach(b => b.onclick = () => { settings.learnVer = b.dataset.v; saveSettings(); showLearnVer(); window.scrollTo(0, 0); });
   $('#learnBtn').onclick = () => openLearn();
-  $('#learnBack').onclick = () => { $('#learn').classList.add('hidden'); if (learnFrom === 'play' && G) { $('#play').classList.remove('hidden'); window.scrollTo(0, 0); } else renderHome(); };
+  $('#learnBack').onclick = () => { Object.values(players).forEach(p => p.pause()); $('#learn').classList.add('hidden'); if (learnFrom === 'play' && G) { $('#play').classList.remove('hidden'); window.scrollTo(0, 0); } else renderHome(); };
   document.querySelectorAll('.lnav a').forEach(a => a.onclick = e => { e.preventDefault(); document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' }); });
 
   // ---------- pick a story ----------

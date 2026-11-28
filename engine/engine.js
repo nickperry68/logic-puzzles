@@ -203,8 +203,10 @@ function LPEngineFactory(root) {
 
   // ---------- techniques ----------
   // Each returns a step {tier, rule, clues, marks} after applying it, or null.
+  // ctx.basic (Easy, engine 7+): clue-and-tick moves only, i.e. direct, sweep and last. Reading across blocks
+  // (transfer), comparing two items (compare) and locked pairs (pair) are Medium moves.
   function tier1(S, ctx) {
-    const { n, N } = S, k = S.k;
+    const { n, N } = S, k = S.k, basic = !!ctx.basic;
     // 1. direct reading of a clue
     for (const c of ctx.clues) {
       const fresh = ctx.direct(c).filter(mk => S.rel(mk[0], mk[1]) !== mk[2]);
@@ -233,6 +235,7 @@ function LPEngineFactory(root) {
         const cy = S.cat(y), sweep = [];
         for (let z = cy * n; z < (cy + 1) * n; z++) if (z !== y && S.rel(x, z) !== -1) sweep.push([x, z, -1]);
         if (sweep.length) return { tier: 1, rule: 'sweep', clues: [], marks: applyMarks(S, sweep), focus: [x, y] };
+        if (basic) continue;
         // same thing => same anchor options
         if (S.D[x] !== S.D[y]) {
           const both = S.D[x] & S.D[y], marks = [];
@@ -250,7 +253,8 @@ function LPEngineFactory(root) {
           if (rx !== 0 && ry === 0) marks.push([y, z, rx]);
         }
         if (marks.length) return { tier: 1, rule: 'transfer', clues: [], marks: applyMarks(S, marks), focus: [x, y] };
-      } else if (r === 0) {
+      } else if (basic) continue;
+      else if (r === 0) {
         if (!(S.D[x] & S.D[y])) return { tier: 1, rule: 'compare', clues: [], marks: applyMarks(S, [[x, y, -1]]) };
         if (S.D[x] === S.D[y] && popcount(S.D[x]) === 1) return { tier: 1, rule: 'compare', clues: [], marks: applyMarks(S, [[x, y, 1]]) };
       } else if (r === -1 && popcount(S.D[x]) === 1 && (S.D[y] & S.D[x])) {
@@ -267,6 +271,7 @@ function LPEngineFactory(root) {
     // 6. a pair: two rows of a grid with the same two options left between them (e.g. "of Ivy and Maeve, one was
     //    the pirate and the other the admiral") use up those two options, so nobody else can have them.
     //    Both ways round, so it also covers two columns that only fit the same two rows.
+    if (basic) return null;
     for (let ca = 0; ca < k; ca++) for (let cb = 0; cb < k; cb++) {
       if (ca === cb) continue;
       const opt = [];
@@ -323,8 +328,8 @@ function LPEngineFactory(root) {
       return m;
     };
   }
-  function makeCtx(P, clues, direct) {
-    return { clues, direct: direct || directOf(P) };
+  function makeCtx(P, clues, direct, basic) {
+    return { clues, direct: direct || directOf(P), basic: !!basic };
   }
 
   // Human-style solve. maxTier caps the techniques allowed.
@@ -409,7 +414,7 @@ function LPEngineFactory(root) {
     return { theme: theme.id, title: theme.title, n, k: cats.length, cats, values, tagSets, clues: [] };
   }
 
-  function makePool(P, sol, r, noAnchors) {
+  function makePool(P, sol, r, noAnchors, allTicks) {
     const { n, k } = P, N = n * k;
     const byGroup = Array.from({ length: n }, () => []);
     for (let x = 0; x < N; x++) byGroup[sol[x]].push(x);
@@ -468,6 +473,8 @@ function LPEngineFactory(root) {
         if (pool.length > before) made++;
       }
     }
+    // Easy 7+: every true pairing is on offer as a plain tick ("Otis ordered the hummus"), since each block is filled from its own clues
+    if (allTicks) for (let e = 0; e < n; e++) for (const a of byGroup[e]) for (const b of byGroup[e]) if (a < b && cat(a) !== cat(b)) add({ type: 'same', refs: [a, b] });
     // numeric comparisons on a second numeric category (e.g. age), alongside the anchor
     const nc = P.cats.findIndex((c, i) => i > 0 && c.numeric);
     if (nc > 0) {
@@ -506,13 +513,14 @@ function LPEngineFactory(root) {
   // weight: how "interesting" a clue type is (giveaways sink to the end)
   const WEIGHT = { nless: 1.1, nby: 1.1, same: 0.15, diff: 0.6, either: 1.2, pair: 1.1, alldiff: 0.9, less: 1.0, by: 1.0, oneOf: 1.3, noneOf: 1.0, setOrder: 1.4 };
 
-  function weightedOrder(pool, r, target) {
-    const W = Object.assign({}, WEIGHT, { same: [0, 1.0, 0.35, 0.2][target] });
+  function weightedOrder(pool, r, target, extra) {
+    const W = Object.assign({}, WEIGHT, { same: [0, 1.0, 0.35, 0.2][target] }, extra || {});
     return pool.map(c => [c, Math.pow(r(), 1 / W[c.type])]).sort((a, b) => b[1] - a[1]).map(a => a[0]);
   }
 
   // bump when a change makes old seeds build different puzzles (saved games check this)
-  const GEN_VERSION = 6;
+  // 7: Easy = clue-and-tick moves only (direct, sweep, last). Older versions still build their old puzzles (VERSIONS).
+  const GEN_VERSION = 7, VERSIONS = [6, 7];
 
   // Hard, by size (categories x items). On the easiest route (best move at every sticking point):
   //   minHard  = two-clue moments the solve must need (Nick's favourite 4x5 had 9)
@@ -608,6 +616,7 @@ function LPEngineFactory(root) {
     opts = opts || {};
     const difficulty = opts.difficulty || 'medium';
     const target = TIER[difficulty];
+    const version = opts.version != null ? opts.version : GEN_VERSION, basicEasy = version >= 7;
     const seed = opts.seed != null ? opts.seed : Math.floor(Math.random() * 2 ** 31);
     const r = rng(seed);
     const n = opts.n || 5;
@@ -617,15 +626,17 @@ function LPEngineFactory(root) {
       const sol = [];
       for (let i = 0; i < n; i++) sol.push(i);
       for (let c = 1; c < P.k; c++) sol.push(...shuffle([...Array(n).keys()], r));
-      let pool = makePool(P, sol, r, target === 3 && P.k * n > 12 && !opts.anchorsInHard).map((c, i) => Object.assign(c, { id: i }));
+      let pool = makePool(P, sol, r, target === 3 && P.k * n > 12 && !opts.anchorsInHard, target === 1 && basicEasy).map((c, i) => Object.assign(c, { id: i }));
       const direct = directOf(P);
-      const solves = (cl, tier) => solve(P, cl, tier, { ctx: makeCtx(P, cl, direct) }).status === 'solved';
+      const solves = (cl, tier) => solve(P, cl, tier, { ctx: makeCtx(P, cl, direct, tier === 1 && target === 1 && basicEasy) }).status === 'solved';
       // ---- build from a recipe, then fill ----
       // The recipe gives every puzzle the mix a good hand-made one has: a "the five are..." list,
       // a pair clue, ordering clues, a couple of one-off crosses and (usually) a tick.
       const want = recipe(target, P.k, n, r);
       const use = new Map(); // item -> times mentioned in chosen clues
-      const capUse = P.k * n <= 9 ? 2 : 3;
+      // Easy 7+: every block has to be filled from its own clues, so items get mentioned more and there are more ticks
+      const easy7 = target === 1 && basicEasy, EZ = opts.easyCaps || {};
+      const capUse = P.k * n <= 9 ? 2 : easy7 && P.k >= 4 ? (EZ.use || 4) : 3;
       const fits = c => shown(c).every(x => (use.get(x) || 0) < capUse);
       const take = c => { for (const x of shown(c)) use.set(x, (use.get(x) || 0) + 1); chosen.push(c); typeCount[c.type] = (typeCount[c.type] || 0) + 1; };
       const usage = c => shown(c).reduce((a, x) => a + (use.get(x) || 0), 0);
@@ -643,9 +654,9 @@ function LPEngineFactory(root) {
       if (!recipeOk) continue;
       const recipeSet = new Set(chosen);
       const grow = Math.max(1, n / 5); // bigger grids need more clues per type
-      const cap = t => t === 'same' ? [0, 4, 2, 0][target] : t === 'diff' && target === 3 ? 1 : t === 'alldiff' ? 1 : (opts.typeCap || Math.ceil((target === 1 ? 6 : 3) * grow));
+      const cap = t => easy7 && (t === 'same' || t === 'diff') ? Math.ceil((t === 'same' ? (EZ.same || (n >= 6 ? 1.5 : 1)) : (EZ.diff || 2)) * n * (P.k - 1) / 2) : t === 'same' ? [0, 4, 2, 0][target] : t === 'diff' && target === 3 ? 1 : t === 'alldiff' ? 1 : (opts.typeCap || Math.ceil((target === 1 ? 6 : 3) * grow));
       let ok = chosen.length >= 3 && solves(chosen, target);
-      const keyOf = new Map(weightedOrder(pool, r, target).map((c, i, a) => [c, a.length - i]));
+      const keyOf = new Map(weightedOrder(pool, r, target, easy7 ? Object.assign({ same: 2.5, diff: 1.3 }, EZ.w || {}) : null).map((c, i, a) => [c, a.length - i]));
       while (!ok) {
         // next filler: best weighted key, discounted by how often its items are already mentioned
         let best = null, bestScore = -1;
@@ -729,8 +740,9 @@ function LPEngineFactory(root) {
       P.solution = sol;
       P.difficulty = difficulty;
       P.seed = seed;
+      P.version = version;
       P.attempts = attempt + 1;
-      const res = solve(P, kept, target);
+      const res = solve(P, kept, target, { ctx: makeCtx(P, kept, direct, target === 1 && basicEasy) });
       P.proof = res.steps;
       if (theme.text) theme.text(P, r);
       return P;
@@ -1070,7 +1082,10 @@ function LPEngineFactory(root) {
     for (const m of marks) S.mark(m[0], m[1], m[2]);
     if (S.solved()) return { type: 'solved' };
     const before = S.clone();
-    const res = solve(P, P.clues, 3, { state: S, firstOnly: true, ctx: makeCtx(P, P.clues) });
+    // Easy (engine 7+): point to a clue-and-tick move whenever there is one
+    const easyBasic = P.difficulty === 'easy' && !(P.version < 7) && !P.skeleton;
+    const res0 = easyBasic ? solve(P, P.clues, 1, { state: S.clone(), firstOnly: true, ctx: makeCtx(P, P.clues, null, true) }) : null;
+    const res = res0 && res0.steps.length ? res0 : solve(P, P.clues, 3, { state: S, firstOnly: true, ctx: makeCtx(P, P.clues) });
     const step = res.steps[0];
     if (!step) return { type: 'stuck' };
     const ex = explain(P, before, step);
@@ -1151,7 +1166,7 @@ function LPEngineFactory(root) {
     return out;
   }
 
-  const api = { caseCode, parseCase, CASE_SEED, SKEL_TYPES, toSkeleton, reskin, route, recipe, shown, GEN_VERSION, hardBar, deepSteps, rng, generate, solve, countSolutions, State, enumerate, stepText, label, clueHolds, makeCtx, explain, factLines, hint };
+  const api = { caseCode, parseCase, CASE_SEED, SKEL_TYPES, toSkeleton, reskin, route, recipe, shown, GEN_VERSION, VERSIONS, hardBar, deepSteps, rng, generate, solve, countSolutions, State, enumerate, stepText, label, clueHolds, makeCtx, explain, factLines, hint };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.LPEngine = api;
 }
